@@ -36,7 +36,7 @@ matplotlib-inline==0.1.6
 # mkl-service==2.4.0
 munkres==1.1.4
 nest-asyncio==1.5.6
-numba==0.56.4
+numba==0.59.1
 numexpr==2.8.4
 numpy==1.23.5
 packaging==22.0
