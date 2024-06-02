@@ -114,7 +114,7 @@ start = time.time()
 # Initialize datasets, dataloaders, ...
 print("Initialize datasets...")
 label_conv_obj = label_converter.LabelConverter()
-set_dataset_path(SOURCE_FOLDER)
+set_dataset_path(SOURCE_FOLDER, FEATURES_ZIP)
 define_dataset(num_folds=5, prefix_in=args.prefix, label_converter_in=label_conv_obj, filter_diff_count=int(args.filter_diff), filter_quality_minor_assessment=int(args.filter_mediocre_quality))
 
 # Extract patient IDs and organize them in a dict
@@ -206,4 +206,4 @@ print('Runtime', time_str)
 print('max. Epochs', args.ep)
 print('Learning rate', args.lr)
 print(f'Average Loss: {avg_loss:.4f}')
-print(f'Average Accuracy: {avg_acc:.4f}')
+print(f'Average Accuracy: {avg_accuracy:.4f}')

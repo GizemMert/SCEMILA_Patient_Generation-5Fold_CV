@@ -19,6 +19,8 @@ import pandas as pd
 # Path to pickle objects for quicker data loading
 # used to make sure define_dataset is called before creating new dataset object
 dataset_defined = False
+path_data = None
+path_features = None
 
 
 def process_label(row):
@@ -35,10 +37,11 @@ def process_label(row):
     return lbl_out
 
 
-def set_dataset_path(path):
-    ''' Pass on path to locate the data '''
-    global path_data
-    path_data = path
+def set_dataset_path(data_path, features_path):
+    ''' Pass on paths to locate the data and features '''
+    global path_data, path_features
+    path_data = data_path
+    path_features = features_path
 
 
 # Load and filter dataset according to custom criteria, before Dataset
@@ -117,8 +120,7 @@ def define_dataset(
         # store patient for later loading
         if label not in merge_dict_processed.keys():
             merge_dict_processed[label] = []
-        patient_path = os.path.join(
-            path_data, 'data', row['bag_label'], row.name)
+        patient_path = os.path.join(row['bag_label'], row.name)
         merge_dict_processed[label].append(patient_path)
 
     # split dataset
@@ -135,7 +137,7 @@ class MllDataset(Dataset):
 
     def __init__(
             self,
-            folds=range(3),
+            folds,
             aug_im_order=True,
             split=None,
             patient_bootstrap_exclude=None,
@@ -153,31 +155,27 @@ class MllDataset(Dataset):
 
         self.aug_im_order = aug_im_order
         self.features_zip = features_zip
-
-        # grab data split for corresponding folds
         self.data = data_split.return_folds(folds)
         self.paths, self.labels = [], []
-
-        # reduce the hard drive burden by storing features in a dictionary in
-        # RAM, as they will be used again
         self.features_loaded = {}
-        self.zipfile = zipfile.ZipFile(self.features_zip, 'r') if self.features_zip else None
 
-        # enter paths and corresponding labels in self.data
+
+        # Open the zip file containing features
+        self.zipfile = zipfile.ZipFile(features_zip, 'r')
+
         for key, val in self.data.items():
             if patient_bootstrap_exclude is not None:
-                if (0 <= patient_bootstrap_exclude < len(val['train' if split == 'train' else 'val'])):
-                    path_excluded = val['train' if split == 'train' else 'val'].pop(patient_bootstrap_exclude)
+                if(0 <= patient_bootstrap_exclude < len(val)):
+                    path_excluded = val.pop(patient_bootstrap_exclude)
                     patient_bootstrap_exclude = -1
                     print("Bootstrapping. Excluded: ", path_excluded)
                 else:
-                    patient_bootstrap_exclude -= len(val['train' if split == 'train' else 'val'])
+                    patient_bootstrap_exclude -= len(val)
 
-            self.paths.extend(val['train'] if split == 'train' else val['val'])
-
+            self.paths.extend(val)
             label_conv_obj.add(key, len(val), split=split)
             label = label_conv_obj[key]
-            self.labels.extend([label] * len(val['train' if split == 'train' else 'val']))
+            self.labels.extend([label] * len(val))
 
     def __len__(self):
         '''returns amount of images contained in object'''
@@ -188,14 +186,10 @@ class MllDataset(Dataset):
 
         # grab images, patient id and label
         path = self.paths[idx]
-
-        # only load if object has not yet been loaded
-        if (path not in self.features_loaded):
-            if self.zipfile:
-                with self.zipfile.open(os.path.join(path, prefix + 'bn_features_layer_7.npy')) as file:
-                    bag = np.load(file)
-            else:
-                bag = np.load(os.path.join(path, prefix + 'bn_features_layer_7.npy'))
+        if path not in self.features_loaded:
+            feature_path = os.path.join('data', path, prefix + 'bn_features_layer_7.npy')
+            with self.zipfile.open(feature_path) as file:
+                bag = np.load(file)
             self.features_loaded[path] = bag
         else:
             bag = self.features_loaded[path].copy()
@@ -203,17 +197,14 @@ class MllDataset(Dataset):
         label = self.labels[idx]
         pat_id = path
 
-        # shuffle features by image order in bag, if desired
         if(self.aug_im_order):
             num_rows = bag.shape[0]
             new_idx = torch.randperm(num_rows)
-
             bag = bag[new_idx, :]
 
-        # prepare labels as one-hot encoded
         label_onehot = torch.zeros(len(self.data))
         label_onehot[label] = 1
-
         label_regular = torch.Tensor([label]).long()
+
 
         return bag, label_regular, pat_id
