@@ -103,7 +103,7 @@ args = parser.parse_args()
 if not (0 <= args.fold < 5):
     raise ValueError("Fold number must be between 0 and 4.")
 
-TARGET_FOLDER = os.path.join('/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/target', args.result_folder)
+TARGET_FOLDER = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/target'
 SOURCE_FOLDER = '/lustre/groups/labs/marr/qscd01/workspace/ario.sadafi/F_AML/TCIA_data_prepared/data'
 
 
