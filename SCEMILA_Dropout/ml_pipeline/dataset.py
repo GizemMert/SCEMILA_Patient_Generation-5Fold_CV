@@ -1,6 +1,7 @@
 import numpy as np
 import pickle
 from PIL import Image
+import zipfile
 
 import torch
 from torch.utils.data import Dataset
@@ -66,8 +67,7 @@ def define_dataset(
     label_conv_obj = label_converter_in
 
     # load patient data
-    df_data_master = pd.read_csv(
-        '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/metadata_combined.csv').set_index('patient_id')
+    df_data_master = pd.read_csv('/lustre/groups/labs/marr/qscd01/workspace/ario.sadafi/F_AML/TCIA_data_prepared/metadata.csv').set_index('patient_id')
 
     print("")
     print("Filtering the dataset...")
@@ -114,6 +114,7 @@ def define_dataset(
             continue
 
         # store patient for later loading
+        # store patient for later loading
         if label not in merge_dict_processed.keys():
             merge_dict_processed[label] = []
         patient_path = os.path.join(
@@ -137,7 +138,8 @@ class MllDataset(Dataset):
             folds=range(3),
             aug_im_order=True,
             split=None,
-            patient_bootstrap_exclude=None):
+            patient_bootstrap_exclude=None,
+            features_zip=None):
         '''dataset constructor. Accepts parameters:
         - folds: list of integers or integer in range(NUM_FOLDS) which are set in beginning of this file.
                 Used to define split of data this dataset should countain, e.g. 0-7 for train, 8 for val,
@@ -150,6 +152,7 @@ class MllDataset(Dataset):
                 'No dataset defined. Use define_dataset before initializing dataset class')
 
         self.aug_im_order = aug_im_order
+        self.features_zip = features_zip
 
         # grab data split for corresponding folds
         self.data = data_split.return_folds(folds)
@@ -158,16 +161,17 @@ class MllDataset(Dataset):
         # reduce the hard drive burden by storing features in a dictionary in
         # RAM, as they will be used again
         self.features_loaded = {}
+        self.zipfile = zipfile.ZipFile(self.features_zip, 'r') if self.features_zip else None
 
         # enter paths and corresponding labels in self.data
         for key, val in self.data.items():
             if patient_bootstrap_exclude is not None:
-                if(0 <= patient_bootstrap_exclude < len(val)):
-                    path_excluded = val.pop(patient_bootstrap_exclude)
+                if (0 <= patient_bootstrap_exclude < len(val['train' if split == 'train' else 'val'])):
+                    path_excluded = val['train' if split == 'train' else 'val'].pop(patient_bootstrap_exclude)
                     patient_bootstrap_exclude = -1
                     print("Bootstrapping. Excluded: ", path_excluded)
                 else:
-                    patient_bootstrap_exclude -= len(val)
+                    patient_bootstrap_exclude -= len(val['train' if split == 'train' else 'val'])
 
             self.paths.extend(val['train'] if split == 'train' else val['val'])
 
@@ -187,11 +191,11 @@ class MllDataset(Dataset):
 
         # only load if object has not yet been loaded
         if (path not in self.features_loaded):
-            bag = np.load(
-                os.path.join(
-                    path,
-                    prefix +
-                    'bn_features_layer_7.npy'))
+            if self.zipfile:
+                with self.zipfile.open(os.path.join(path, prefix + 'bn_features_layer_7.npy')) as file:
+                    bag = np.load(file)
+            else:
+                bag = np.load(os.path.join(path, prefix + 'bn_features_layer_7.npy'))
             self.features_loaded[path] = bag
         else:
             bag = self.features_loaded[path].copy()

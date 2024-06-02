@@ -105,6 +105,7 @@ if not (0 <= args.fold < 5):
 
 TARGET_FOLDER = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/target'
 SOURCE_FOLDER = '/lustre/groups/labs/marr/qscd01/workspace/ario.sadafi/F_AML/TCIA_data_prepared/data'
+FEATURES_ZIP = '/lustre/groups/labs/marr/qscd01/workspace/ario.sadafi/F_AML/TCIA_data_prepared/TCIA-features.zip'
 
 
 # store results in target folder
@@ -144,14 +145,19 @@ print(f"Using device: {device}")
 for current_fold in range(5):
     print(f"Starting fold {current_fold + 1}...")
 
-    # Set up folds for cross-validation
-    folds = {'train': np.array([0, 1, 2, 3]), 'val': np.array([3])}
-    for name, fold in folds.items():
-        folds[name] = ((fold + current_fold) % 5).tolist()
+    # Retrieve the current fold data
+    fold_data = return_folds(current_fold)
+
+    train_ids = []
+    val_ids = []
+
+    for key, ids in fold_data.items():
+        train_ids.extend(ids['train'])
+        val_ids.extend(ids['val'])
 
     datasets = {
-        'train': MllDataset(folds=folds['train'], aug_im_order=True, split='train', patient_bootstrap_exclude=args.bootstrap_idx),
-        'val': MllDataset(folds=folds['val'], aug_im_order=False, split='val')
+        'train': MllDataset(folds=train_ids, aug_im_order=True, split='train', patient_bootstrap_exclude=args.bootstrap_idx, features_zip=FEATURES_ZIP),
+        'val': MllDataset(folds=val_ids, aug_im_order=False, split='val', features_zip=FEATURES_ZIP)
     }
 
     df = label_conv_obj.df
@@ -193,19 +199,20 @@ for current_fold in range(5):
     train_obj = ModelTrainer(model=model, dataloaders=dataloaders, epochs=int(args.ep), optimizer=optimizer, scheduler=scheduler, class_count=class_count, early_stop=int(args.es), device=device)
     model, conf_matrix, data_obj = train_obj.launch_training()
 
-    # Save Model if Specified
-    if int(args.save_model):
-        torch.save(model, os.path.join(TARGET_FOLDER, f'model_fold_{current_fold + 1}.pt'))
-        torch.save(model, os.path.join(TARGET_FOLDER, f'state_dictmodel_fold_{current_fold + 1}.pt'))
-
-    # Collect fold results
+    # Collect metrics for this fold
     all_fold_losses.append(train_obj.best_loss)
     all_fold_accuracies.append(train_obj.best_acc)
 
+    if int(args.save_model):
+        torch.save(model, os.path.join(TARGET_FOLDER, f'model_fold_{current_fold}.pt'))
+        torch.save(model, os.path.join(TARGET_FOLDER, f'state_dictmodel_fold_{current_fold}.pt'))
 
-# Calculate average metrics
+
+# Calculate and print average metrics across all folds
 avg_loss = np.mean(all_fold_losses)
-avg_acc = np.mean(all_fold_accuracies)
+avg_accuracy = np.mean(all_fold_accuracies)
+print(f"Average Loss across folds: {avg_loss}")
+print(f"Average Accuracy across folds: {avg_accuracy}")
 
 end = time.time()
 runtime = end - start
