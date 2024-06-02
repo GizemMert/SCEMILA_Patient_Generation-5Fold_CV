@@ -10,7 +10,7 @@
 #SBATCH --nice=1
 #SBATCH --qos=gpu_short
 #SBATCH --output=5F_CV_output.log
-#SBATCH --error=.5F_CV_error.log
+#SBATCH --error=5F_CV_error.log
 
 source /home/aih/gizem.mert/miniconda3/etc/profile.d/conda.sh
 conda activate my_env2
