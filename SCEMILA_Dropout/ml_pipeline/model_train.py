@@ -32,6 +32,8 @@ class ModelTrainer:
         self.class_count = class_count
         self.early_stop = early_stop
         self.device = device
+        self.best_loss = float('inf')
+        self.best_acc = float('inf')
 
     def launch_training(self):
         '''initializes training process.'''

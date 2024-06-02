@@ -1,4 +1,5 @@
 import random as r
+from sklearn.model_selection import KFold
 
 '''Script splits data into x folds, and returns the specific sets
 with the function return_folds'''
@@ -22,6 +23,8 @@ def split_in_folds(data, num_folds):
     data_split = dict()
     percent_per_split = 1 / num_folds
 
+    kf = KFold(n_splits=num_folds, shuffle=True, random_state=42)
+
     # iterate over all entities
     for key, value in data.items():
 
@@ -30,34 +33,26 @@ def split_in_folds(data, num_folds):
         ordered_patients = sorted(value)
         r.shuffle(ordered_patients)
 
-        # output data for every fold
-        for fold in range(num_folds):
+        patient_ids = list(range(len(ordered_patients)))
+
+        for fold, (train_index, val_index) in enumerate(kf.split(patient_ids)):
             if fold not in data_split:
                 data_split[fold] = dict()
+            train_ids = [ordered_patients[i] for i in train_index]
+            val_ids = [ordered_patients[i] for i in val_index]
 
-            # calculate starting and ending idx for list of patients
-            start = round(fold * percent_per_split * len(ordered_patients))
-            end = round((fold + 1) * percent_per_split * len(ordered_patients))
+            data_split[fold][key] = {'train': train_ids, 'val': val_ids}
 
-            data_split[fold][key] = ordered_patients[start:end]
+    print("Data split into {} folds.".format(num_folds))
 
 
-def return_folds(folds):
-    '''Returns all data from data_split from the corresponding folds of the
-    previously calculated split, can pass either a single integer or a list of
-    integers for the folds to fetch.'''
+def return_folds(fold):
+    '''Returns all data from data_split for the specified fold of the
+    previously calculated split.
+    '''
+    global data_split
 
-    if(isinstance(folds, int)):
-        folds = [folds]
+    if fold not in data_split:
+        raise ValueError(f"Fold {fold} not found in data_split")
 
-    data_final = dict()
-
-    # merge together multiple folds to return one dictionary
-    for fold in folds:
-        for key, value in data_split[fold].items():
-
-            if key not in data_final:
-                data_final[key] = []
-            data_final[key].extend(value)
-
-    return data_final
+    return data_split[fold]
