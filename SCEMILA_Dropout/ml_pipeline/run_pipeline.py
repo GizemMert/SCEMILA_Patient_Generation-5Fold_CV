@@ -103,24 +103,21 @@ args = parser.parse_args()
 if not (0 <= args.fold < 5):
     raise ValueError("Fold number must be between 0 and 4.")
 
-TARGET_FOLDER = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/target'
+TARGET_FOLDER = os.path.join('/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/target', args.result_folder)
 SOURCE_FOLDER = '/lustre/groups/labs/marr/qscd01/workspace/ario.sadafi/F_AML/TCIA_data_prepared/data'
 FEATURES_ZIP = '/lustre/groups/labs/marr/qscd01/workspace/ario.sadafi/F_AML/TCIA_data_prepared/TCIA-features.zip'
 
-
-# store results in target folder
-TARGET_FOLDER = os.path.join(TARGET_FOLDER, args.result_folder)
 if not os.path.exists(TARGET_FOLDER):
     os.mkdir(TARGET_FOLDER)
 start = time.time()
 
-# Dataset Initialization
-print("\nInitialize datasets...")
+# Initialize datasets, dataloaders, ...
+print("Initialize datasets...")
 label_conv_obj = label_converter.LabelConverter()
 set_dataset_path(SOURCE_FOLDER)
 define_dataset(num_folds=5, prefix_in=args.prefix, label_converter_in=label_conv_obj, filter_diff_count=int(args.filter_diff), filter_quality_minor_assessment=int(args.filter_mediocre_quality))
 
-# Extract patient IDs
+# Extract patient IDs and organize them in a dict
 def get_patient_ids(source_folder):
     data = {}
     for subtype in os.listdir(source_folder):
@@ -160,18 +157,10 @@ for current_fold in range(5):
         'val': MllDataset(folds=val_ids, aug_im_order=False, split='val', features_zip=FEATURES_ZIP)
     }
 
-    df = label_conv_obj.df
-    df.to_csv(os.path.join(TARGET_FOLDER, f"class_conversion_fold_{current_fold + 1}.csv"), index=False)
-    class_count = len(df)
-    print("Data distribution: ")
-    print(df)
-
-    # Initialize dataloaders
-    print("Initialize dataloaders...")
     dataloaders = {}
-    class_sizes = list(df.size_tot)
-    label_freq = [class_sizes[c] / sum(class_sizes) for c in range(class_count)]
-    individual_sampling_prob = [(1 / class_count) * (1 / label_freq[c]) for c in range(class_count)]
+    class_sizes = list(label_conv_obj.df.size_tot)
+    label_freq = [class_sizes[c] / sum(class_sizes) for c in range(len(class_sizes))]
+    individual_sampling_prob = [(1 / len(class_sizes)) * (1 / label_freq[c]) for c in range(len(class_sizes))]
 
     idx_sampling_freq_train = torch.tensor(individual_sampling_prob)[datasets['train'].labels]
     idx_sampling_freq_val = torch.tensor(individual_sampling_prob)[datasets['val'].labels]
@@ -181,22 +170,15 @@ for current_fold in range(5):
     dataloaders['train'] = DataLoader(datasets['train'], sampler=sampler_train)
     dataloaders['val'] = DataLoader(datasets['val'])
 
-    # Model Initialization
-    ngpu = torch.cuda.device_count()
-    print(f"Found {ngpu} GPU(s)")
-
-    model = AMiL(class_count=class_count, multicolumn=int(args.multi_att), device=device)
-    if ngpu > 1:
+    model = AMiL(class_count=len(class_sizes), multicolumn=int(args.multi_att), device=device)
+    if torch.cuda.device_count() > 1:
         model = torch.nn.DataParallel(model)
     model = model.to(device)
-    print("Setup complete.\n")
 
-    # Optimizer and Scheduler Setup
     optimizer = optim.SGD(model.parameters(), lr=float(args.lr), momentum=0.9, nesterov=True)
     scheduler = None
 
-    # Launch Training
-    train_obj = ModelTrainer(model=model, dataloaders=dataloaders, epochs=int(args.ep), optimizer=optimizer, scheduler=scheduler, class_count=class_count, early_stop=int(args.es), device=device)
+    train_obj = ModelTrainer(model=model, dataloaders=dataloaders, epochs=int(args.ep), optimizer=optimizer, scheduler=scheduler, class_count=len(class_sizes), early_stop=int(args.es), device=device)
     model, conf_matrix, data_obj = train_obj.launch_training()
 
     # Collect metrics for this fold
@@ -206,7 +188,6 @@ for current_fold in range(5):
     if int(args.save_model):
         torch.save(model, os.path.join(TARGET_FOLDER, f'model_fold_{current_fold}.pt'))
         torch.save(model, os.path.join(TARGET_FOLDER, f'state_dictmodel_fold_{current_fold}.pt'))
-
 
 # Calculate and print average metrics across all folds
 avg_loss = np.mean(all_fold_losses)
