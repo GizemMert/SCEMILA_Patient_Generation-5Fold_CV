@@ -46,13 +46,26 @@ def split_in_folds(data, num_folds):
     print("Data split into {} folds.".format(num_folds))
 
 
-def return_folds(fold):
+def return_folds(folds):
     '''Returns all data from data_split for the specified fold of the
     previously calculated split.
     '''
     global data_split
 
-    if fold not in data_split:
-        raise ValueError(f"Fold {fold} not found in data_split")
+    if isinstance(folds, int):
+        folds = [folds]
 
-    return data_split[fold]
+    data_final = dict()
+
+    # merge together multiple folds to return one dictionary
+    for fold in folds:
+        if fold not in data_split:
+            raise ValueError(f"Fold {fold} not found in data_split")
+
+        for key, value in data_split[fold].items():
+            if key not in data_final:
+                data_final[key] = {'train': [], 'val': []}
+            data_final[key]['train'].extend(value['train'])
+            data_final[key]['val'].extend(value['val'])
+
+    return data_final

@@ -67,7 +67,7 @@ def define_dataset(
 
     # load patient data
     df_data_master = pd.read_csv(
-        '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/metadata_combined.csv'.format(path_data)).set_index('patient_id')
+        '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/metadata_combined.csv').set_index('patient_id')
 
     print("")
     print("Filtering the dataset...")
@@ -169,11 +169,11 @@ class MllDataset(Dataset):
                 else:
                     patient_bootstrap_exclude -= len(val)
 
-            self.paths.extend(val)
+            self.paths.extend(val['train'] if split == 'train' else val['val'])
 
             label_conv_obj.add(key, len(val), split=split)
             label = label_conv_obj[key]
-            self.labels.extend([label] * len(val))
+            self.labels.extend([label] * len(val['train' if split == 'train' else 'val']))
 
     def __len__(self):
         '''returns amount of images contained in object'''
