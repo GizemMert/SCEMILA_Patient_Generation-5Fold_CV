@@ -21,7 +21,6 @@ module load jupyter
 HOSTNAME=$(hostname)
 
 
-
 PORT=$(shuf -i 8000-9999 -n 1)
 
 jupyter-notebook --no-browser --port=$PORT --ip=$HOSTNAME &
