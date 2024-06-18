@@ -11,12 +11,6 @@ import sys
 import os
 import time
 import argparse as ap
-from sklearn.model_selection import KFold
-import numpy as np
-from dataset import MllDataset
-from data_split import split_in_folds, return_folds
-
-
 
 torch.multiprocessing.set_sharing_strategy('file_system')
 
@@ -31,6 +25,8 @@ torch.multiprocessing.set_sharing_strategy('file_system')
 # path to dataset
 #SOURCE_FOLDER = r'/mnt/c/Users/Hillary Hauger/Documents/Studium/WS23-24/Computational Methods for Single-cell Biology/smalldataset'
 #Random shuffe: Experiment 1
+TARGET_FOLDER = '/Users/aleksandraivanova/Desktop/CMSCB/target'
+SOURCE_FOLDER = '/Users/aleksandraivanova/Desktop/CMSCB/data'
 
 # get arguments from parser, set up folder
 # parse arguments
@@ -39,7 +35,7 @@ parser = ap.ArgumentParser()
 # Algorithm / training parameters
 parser.add_argument(
     '--fold',
-    help='offset for cross-validation (0-4). Change to cross-validate',
+    help='offset for cross-validation (1-5). Change to cross-validate',
     required=False,
     default=0)  # shift folds for cross validation. Increasing by 1 moves all folds by 1.
 parser.add_argument(
@@ -99,111 +95,158 @@ parser.add_argument(
     default=1)                  # store model parameters if 1
 args = parser.parse_args()
 
-# Ensure the fold number is within the valid range
-if not (0 <= args.fold < 5):
-    raise ValueError("Fold number must be between 0 and 4.")
-
-TARGET_FOLDER = os.path.join('/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/target', args.result_folder)
-SOURCE_FOLDER = '/lustre/groups/labs/marr/qscd01/workspace/ario.sadafi/F_AML/TCIA_data_prepared/data'
-FEATURES_ZIP = '/lustre/groups/labs/marr/qscd01/workspace/ario.sadafi/F_AML/TCIA_data_prepared/TCIA-features.zip'
-
+# store results in target folder
+TARGET_FOLDER = os.path.join(TARGET_FOLDER, args.result_folder)
 if not os.path.exists(TARGET_FOLDER):
     os.mkdir(TARGET_FOLDER)
 start = time.time()
 
+
+# 2: Dataset
 # Initialize datasets, dataloaders, ...
-print("Initialize datasets...")
+print("")
+print('Initialize datasets...')
 label_conv_obj = label_converter.LabelConverter()
-set_dataset_path(SOURCE_FOLDER, FEATURES_ZIP)
-define_dataset(num_folds=5, prefix_in=args.prefix, label_converter_in=label_conv_obj, filter_diff_count=int(args.filter_diff), filter_quality_minor_assessment=int(args.filter_mediocre_quality))
+set_dataset_path(SOURCE_FOLDER)
+define_dataset(
+    num_folds=4,
+    prefix_in=args.prefix,
+    label_converter_in=label_conv_obj,
+    filter_diff_count=int(
+        args.filter_diff),
+    filter_quality_minor_assessment=int(
+        args.filter_mediocre_quality))
+datasets = {}
 
-# Extract patient IDs and organize them in a dict
-def get_patient_ids(source_folder):
-    data = {}
-    for subtype in os.listdir(source_folder):
-        subtype_path = os.path.join(source_folder, subtype)
-        if os.path.isdir(subtype_path):
-            patients = [os.path.join(subtype, patient) for patient in os.listdir(subtype_path) if os.path.isdir(os.path.join(subtype_path, patient))]
-            data[subtype] = patients
-    return data
+# set up folds for cross validation
+folds = {'train': np.array([0, 1, 2,3]), 'val': np.array([
+    3])}
+'''{'train': np.array([0, 1, 2,3]), 'val': np.array([
+    3]), 'test': np.array([4])}'''
+for name, fold in folds.items():
+    folds[name] = ((fold + int(args.fold)) % 4).tolist()
 
-patient_data = get_patient_ids(SOURCE_FOLDER)
-split_in_folds(patient_data, num_folds=5)
+datasets['train'] = MllDataset(
+    folds=folds['train'],
+    aug_im_order=True,
+    split='train',
+    patient_bootstrap_exclude=int(
+        args.bootstrap_idx))
+datasets['val'] = MllDataset(
+    folds=folds['val'],
+    aug_im_order=False,
+    split='val')
 
-# Initialize cross-validation results
-all_fold_losses = []
-all_fold_accuracies = []
+# store conversion from true string labels to artificial numbers for
+# one-hot encoding
+df = label_conv_obj.df
+df.to_csv(os.path.join(TARGET_FOLDER, "class_conversion.csv"), index=False)
+class_count = len(df)
+print("Data distribution: ")
+print(df)
 
-# Device setup
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print(f"Using device: {device}")
+# Initialize dataloaders
+print("Initialize dataloaders...")
+dataloaders = {}
 
-# Perform 5-Fold Cross-Validation
-for current_fold in range(5):
-    print(f"Starting fold {current_fold + 1}...")
+# ensure balanced sampling
+# get total sample sizes
+class_sizes = list(df.size_tot)
+# calculate label frequencies
+label_freq = [class_sizes[c] / sum(class_sizes) for c in range(class_count)]
+# balance sampling frequencies for equal sampling
+individual_sampling_prob = [
+    (1 / class_count) * (1 / label_freq[c]) for c in range(class_count)]
 
-    # Retrieve the current fold data
-    fold_data = return_folds(current_fold)
+idx_sampling_freq_train = torch.tensor(individual_sampling_prob)[
+    datasets['train'].labels]
+idx_sampling_freq_val = torch.tensor(individual_sampling_prob)[
+    datasets['val'].labels]
 
-    train_ids = []
-    val_ids = []
+sampler_train = WeightedRandomSampler(
+    weights=idx_sampling_freq_train,
+    replacement=True,
+    num_samples=len(idx_sampling_freq_train))
+# sampler_val = WeightedRandomSampler(weights=idx_sampling_freq_val, replacement=True, num_samples=len(idx_sampling_freq_val))
 
-    for key, ids in fold_data.items():
-        train_ids.extend(ids['train'])
-        val_ids.extend(ids['val'])
+dataloaders['train'] = DataLoader(
+    datasets['train'],
+    sampler=sampler_train)
+dataloaders['val'] = DataLoader(
+    datasets['val'])  # , sampler=sampler_val)
+print("")
 
-    datasets = {
-        'train': MllDataset(folds=train_ids, aug_im_order=True, split='train', patient_bootstrap_exclude=args.bootstrap_idx, features_zip=FEATURES_ZIP),
-        'val': MllDataset(folds=val_ids, aug_im_order=False, split='val', features_zip=FEATURES_ZIP)
-    }
 
-    dataloaders = {}
-    class_sizes = list(label_conv_obj.df.size_tot)
-    label_freq = [class_sizes[c] / sum(class_sizes) for c in range(len(class_sizes))]
-    individual_sampling_prob = [(1 / len(class_sizes)) * (1 / label_freq[c]) for c in range(len(class_sizes))]
+# 3: Model
+# initialize model, GPU link, training
 
-    idx_sampling_freq_train = torch.tensor(individual_sampling_prob)[datasets['train'].labels]
-    idx_sampling_freq_val = torch.tensor(individual_sampling_prob)[datasets['val'].labels]
+# set up GPU link and model (check for multi GPU setup)
+#device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device="cpu"
+ngpu = torch.cuda.device_count()
+print("Found device: ", ngpu, "x ", device)
 
-    sampler_train = WeightedRandomSampler(weights=idx_sampling_freq_train, replacement=True, num_samples=len(idx_sampling_freq_train))
+model = AMiL(
+    class_count=class_count,
+    multicolumn=int(
+        args.multi_att),
+    device=device)
 
-    dataloaders['train'] = DataLoader(datasets['train'], sampler=sampler_train)
-    dataloaders['val'] = DataLoader(datasets['val'])
+if(ngpu > 1):
+    model = torch.nn.DataParallel(model)
+model = model.to(device)
+print("Setup complete.")
+print("")
 
-    model = AMiL(class_count=len(class_sizes), multicolumn=int(args.multi_att), device=device)
-    if torch.cuda.device_count() > 1:
-        model = torch.nn.DataParallel(model)
-    model = model.to(device)
+# set up optimizer and scheduler
+optimizer = optim.SGD(
+    model.parameters(),
+    lr=float(
+        args.lr),
+    momentum=0.9,
+    nesterov=True)
+scheduler = None
 
-    optimizer = optim.SGD(model.parameters(), lr=float(args.lr), momentum=0.9, nesterov=True)
-    scheduler = None
+# launch training
+train_obj = ModelTrainer(
+    model=model,
+    dataloaders=dataloaders,
+    epochs=int(
+        args.ep),
+    optimizer=optimizer,
+    scheduler=scheduler,
+    class_count=class_count,
+    early_stop=int(
+        args.es),
+    device=device)
+model, conf_matrix, data_obj = train_obj.launch_training()
 
-    train_obj = ModelTrainer(model=model, dataloaders=dataloaders, epochs=int(args.ep), optimizer=optimizer, scheduler=scheduler, class_count=len(class_sizes), early_stop=int(args.es), device=device)
-    model, conf_matrix, data_obj = train_obj.launch_training()
 
-    # Collect metrics for this fold
-    all_fold_losses.append(train_obj.best_loss)
-    all_fold_accuracies.append(train_obj.best_acc)
+'''# 4: aftermath
+# save confusion matrix from test set, all the data , model, print parameters
 
-    if int(args.save_model):
-        torch.save(model, os.path.join(TARGET_FOLDER, f'model_fold_{current_fold}.pt'))
-        torch.save(model, os.path.join(TARGET_FOLDER, f'state_dictmodel_fold_{current_fold}.pt'))
+np.save(os.path.join(TARGET_FOLDER, 'test_conf_matrix.npy'), conf_matrix)
+pickle.dump(
+    data_obj,
+    open(
+        os.path.join(
+            TARGET_FOLDER,
+            'testing_data.pkl'),
+        "wb"))'''
 
-# Calculate and print average metrics across all folds
-avg_loss = np.mean(all_fold_losses)
-avg_accuracy = np.mean(all_fold_accuracies)
-print(f"Average Loss across folds: {avg_loss}")
-print(f"Average Accuracy across folds: {avg_accuracy}")
+if(int(args.save_model)):
+    torch.save(model, os.path.join(TARGET_FOLDER, 'model.pt'))
+    torch.save(model, os.path.join(TARGET_FOLDER, 'state_dictmodel.pt'))
 
 end = time.time()
 runtime = end - start
-time_str = f"{int(runtime // 3600)}h{int((runtime % 3600) // 60)}min{int(runtime % 60)}s"
+time_str = str(int(runtime // 3600)) + "h" + str(int((runtime %
+                                                      3600) // 60)) + "min" + str(int(runtime % 60)) + "s"
 
-# Final Report
-print("\n------------------------Final report--------------------------")
+# other parameters
+print("")
+print("------------------------Final report--------------------------")
 print('prefix', args.prefix)
 print('Runtime', time_str)
 print('max. Epochs', args.ep)
 print('Learning rate', args.lr)
-print(f'Average Loss: {avg_loss:.4f}')
-print(f'Average Accuracy: {avg_accuracy:.4f}')

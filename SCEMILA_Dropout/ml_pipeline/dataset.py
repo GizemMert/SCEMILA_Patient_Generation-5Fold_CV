@@ -186,10 +186,14 @@ class MllDataset(Dataset):
 
         # grab images, patient id and label
         path = self.paths[idx]
-        if path not in self.features_loaded:
-            feature_path = os.path.join('data', path, prefix + 'bn_features_layer_7.npy')
-            with self.zipfile.open(feature_path) as file:
-                bag = np.load(file)
+
+        # only load if object has not yet been loaded
+        if (path not in self.features_loaded):
+            if self.zipfile:
+                with self.zipfile.open(os.path.join(path, prefix + 'bn_features_layer_7.npy')) as file:
+                    bag = np.load(file)
+            else:
+                bag = np.load(os.path.join(path, prefix + 'bn_features_layer_7.npy'))
             self.features_loaded[path] = bag
         else:
             bag = self.features_loaded[path].copy()
@@ -197,14 +201,18 @@ class MllDataset(Dataset):
         label = self.labels[idx]
         pat_id = path
 
+        # shuffle features by image order in bag, if desired
         if(self.aug_im_order):
             num_rows = bag.shape[0]
             new_idx = torch.randperm(num_rows)
+
             bag = bag[new_idx, :]
 
+        # prepare labels as one-hot encoded
         label_onehot = torch.zeros(len(self.data))
         label_onehot[label] = 1
+
         label_regular = torch.Tensor([label]).long()
 
-
         return bag, label_regular, pat_id
+
