@@ -12,19 +12,23 @@
 #SBATCH --output=jupyter_output.log
 #SBATCH --error=jupyter_error.log
 
+# Source conda to make 'conda activate' work
 source /home/aih/gizem.mert/miniconda3/etc/profile.d/conda.sh
+
+# Activate the conda environment
 conda activate my_env2
-module load python/3.8
-module load jupyter
 
-
+# Get the hostname
 HOSTNAME=$(hostname)
 
-
+# Get an available port (or specify a port if needed)
 PORT=$(shuf -i 8000-9999 -n 1)
 
+# Start Jupyter Notebook server (run in the background)
 jupyter-notebook --no-browser --port=$PORT --ip=$HOSTNAME &
 
+# Run the notebook using nbconvert to execute it
 jupyter nbconvert --execute /home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Single_Cell_Classifier/single_cell_classification.ipynb --to notebook --inplace
 
+# Print instructions to access the notebook
 echo "Jupyter Notebook is running on $HOSTNAME:$PORT"
