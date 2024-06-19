@@ -16,7 +16,7 @@
 source /home/aih/gizem.mert/miniconda3/etc/profile.d/conda.sh
 
 # Activate the new conda environment
-conda activate my_new_env
+conda activate my_env2
 
 # Get the hostname
 HOSTNAME=$(hostname)
