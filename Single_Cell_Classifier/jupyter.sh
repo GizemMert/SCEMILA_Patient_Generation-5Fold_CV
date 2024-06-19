@@ -15,8 +15,8 @@
 # Source conda to make 'conda activate' work
 source /home/aih/gizem.mert/miniconda3/etc/profile.d/conda.sh
 
-# Activate the conda environment
-conda activate my_env2
+# Activate the new conda environment
+conda activate my_new_env
 
 # Get the hostname
 HOSTNAME=$(hostname)
@@ -32,3 +32,4 @@ jupyter nbconvert --execute /home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Gene
 
 # Print instructions to access the notebook
 echo "Jupyter Notebook is running on $HOSTNAME:$PORT"
+
