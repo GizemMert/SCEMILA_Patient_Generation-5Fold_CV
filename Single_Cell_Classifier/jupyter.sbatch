@@ -32,7 +32,7 @@ conda activate my_new_env
 cd /home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Single_Cell_Classifier
 
 # Select an available port between 8000-9000 for Jupyter Lab
-PORT=$(/usr/bin/shuf -i 8000-9000 -n 1)
+PORT=8385
 
 
 export JUPYTER_TOKEN=$(openssl rand -hex 32)
