@@ -1,23 +1,16 @@
 #!/bin/sh
 
 
-#SBATCH --job-name=PG
+#SBATCH --job-name=5KCV
 #SBATCH -o slurm_jupyter_%j.txt
 #SBATCH -e slurm_error_%j.txt
 
-#SBATCH --job-name=m_n
-#SBATCH --partition=gpu_p
-#SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=6
-#SBATCH --mem=80G
-#SBATCH --gres=gpu:1
+#SBATCH --cpus-per-task=4
+#SBATCH --mem-per-cpu=5G
+#SBATCH --partition=cpu_p
+#SBATCH --qos=cpu_normal
 #SBATCH --time=4:00:00
-#SBATCH --nice=10000
-#SBATCH --qos=gpu_normal
-
-#SBATCH --output=my_job_output_3.log
-#SBATCH --error=my_job_error_3.log
 
 
 
@@ -27,7 +20,7 @@ source $HOME/.bashrc
 chmod 600 $HOME/slurm_jupyter_$SLURM_JOB_ID.job
 
 # Activate the correct conda environment
-
+conda deactivate
 conda activate my_new_env
 
 # Select an available port between 8000-9000 for Jupyter Lab
