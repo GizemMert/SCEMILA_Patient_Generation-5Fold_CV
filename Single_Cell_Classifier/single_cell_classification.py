@@ -1,7 +1,7 @@
 import torch
 import os
 from PIL import Image
-import label_converter # make sure the label_converter.py is in the folder with this script
+import label_converter  # make sure the label_converter.py is in the folder with this script
 import numpy as np
 from torchvision import transforms
 import torch.nn as nn
@@ -10,11 +10,8 @@ import torch.nn as nn
 PATH_TO_IMAGES = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/data'
 PATH_TO_MODEL = os.path.join(os.getcwd(), "/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Single_Cell_Classifier/class_conversion-csv/model.pt")
 
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
 # Load model and print architecture
-model = torch.load(PATH_TO_MODEL, map_location=device)
-model = model.to(device)
+model = torch.load(PATH_TO_MODEL, map_location=torch.device('cpu'))
 
 
 def create_dataset(root_dirs):
@@ -57,7 +54,8 @@ def save_single_cell_probabilities(data, folder_patient):
         input = get_image(idx, data)
         input = input.permute(2, 0, 1).unsqueeze(0)
 
-        input = input.float().to(device)
+        # Convert input to float
+        input = input.float()
         input = input / 255.
 
         # Normalize the input
@@ -70,7 +68,7 @@ def save_single_cell_probabilities(data, folder_patient):
         pred_probability = softmax(pred)
 
         # Save probabilities in a file
-        pred_vect = pred_probability.cpu().detach().numpy().flatten()
+        pred_vect = pred_probability.detach().numpy().flatten()
         array_list.append([pred_vect])
 
     # Concatenate all features for one artificial patient
