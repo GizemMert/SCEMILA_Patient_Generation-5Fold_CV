@@ -10,12 +10,8 @@
 #SBATCH --nice=10000
 #SBATCH --qos=gpu_normal
 
-DATE=$(date +"%Y%m%d_%H%M%S")
-OUTPUT_LOG="scc_output_$DATE.log"
-ERROR_LOG="scc_error_$DATE.log"
-
-#SBATCH --output=$OUTPUT_LOG
-#SBATCH --error=$ERROR_LOG
+#SBATCH --output=scc_output.log
+#SBATCH --error=scc_error.log
 
 
 source /home/aih/gizem.mert/miniconda3/etc/profile.d/conda.sh
