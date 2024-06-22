@@ -14,6 +14,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # Load model and print architecture
 model = torch.load(PATH_TO_MODEL, map_location=device)
+model = model.to(device)
 
 
 def create_dataset(root_dirs):
@@ -56,8 +57,7 @@ def save_single_cell_probabilities(data, folder_patient):
         input = get_image(idx, data)
         input = input.permute(2, 0, 1).unsqueeze(0)
 
-        # Convert input to float
-        input = input.float()
+        input = input.float().to(device)
         input = input / 255.
 
         # Normalize the input
@@ -65,12 +65,13 @@ def save_single_cell_probabilities(data, folder_patient):
         input = normalize(input)
 
         model.eval()
-        pred = model(input)
-        softmax = nn.Softmax(dim=1)
-        pred_probability = softmax(pred)
+        with torch.no_grad():  # Use no_grad() for inference
+            pred = model(input)
+            softmax = nn.Softmax(dim=1)
+            pred_probability = softmax(pred)
 
         # Save probabilities in a file
-        pred_vect = pred_probability.detach().numpy().flatten()
+        pred_vect = pred_probability.cpu().detach().numpy().flatten()
         array_list.append([pred_vect])
 
     # Concatenate all features for one artificial patient
