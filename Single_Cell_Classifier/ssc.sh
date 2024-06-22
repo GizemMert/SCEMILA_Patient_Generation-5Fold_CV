@@ -1,12 +1,12 @@
 #!/bin/bash
 #SBATCH --job-name=scc
-#SBATCH --p cpu_p
-#SBATCH --qos cpu_normal
+#SBATCH --partition=cpu_p
+#SBATCH --qos=cpu_normal
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=50G
-#SBATCH --time=5:00:00
+#SBATCH --time=2:00:00
 #SBATCH --nice=10000
 
 #SBATCH --output=scc_output.log
