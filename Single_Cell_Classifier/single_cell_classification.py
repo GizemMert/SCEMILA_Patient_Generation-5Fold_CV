@@ -65,10 +65,9 @@ def save_single_cell_probabilities(data, folder_patient):
         input = normalize(input)
 
         model.eval()
-        with torch.no_grad():  # Use no_grad() for inference
-            pred = model(input)
-            softmax = nn.Softmax(dim=1)
-            pred_probability = softmax(pred)
+        pred = model(input)
+        softmax = nn.Softmax(dim=1)
+        pred_probability = softmax(pred)
 
         # Save probabilities in a file
         pred_vect = pred_probability.cpu().detach().numpy().flatten()
@@ -82,11 +81,12 @@ def save_single_cell_probabilities(data, folder_patient):
 
 
 # Save class probabilities for each patient
+print("Starting processing of image folders...")
 for folder_class in os.listdir(PATH_TO_IMAGES):
     folder_class = os.path.join(PATH_TO_IMAGES, folder_class)
 
     if os.path.isdir(folder_class):
-        print(folder_class)
+        print(f"Processing class folder: {folder_class}")
         for folder_patient in os.listdir(folder_class):
             folder_patient = os.path.join(folder_class, folder_patient)
             if os.path.isdir(folder_patient):
@@ -95,6 +95,8 @@ for folder_class in os.listdir(PATH_TO_IMAGES):
                 if tif_files:
                     print("Processing patient folder with .tif files:", folder_patient)
                     data = create_dataset([folder_patient])
+                    print(f"Found {len(data)} .tif files in patient folder: {folder_patient}")
                     save_single_cell_probabilities(data, folder_patient)
+                    print(f"Finished processing patient folder: {folder_patient}")
                 else:
                     print("Skipping patient folder without .tif files:", folder_patient)
