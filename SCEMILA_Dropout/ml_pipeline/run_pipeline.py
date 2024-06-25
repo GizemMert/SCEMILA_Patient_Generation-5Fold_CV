@@ -42,7 +42,7 @@ parser.add_argument(
     '--lr',
     help='used learning rate',
     required=False,
-    default=0.00005)                                     # learning rate
+    default=0.0001)                                     # learning rate
 parser.add_argument(
     '--ep',
     help='max. amount after which training should stop',
