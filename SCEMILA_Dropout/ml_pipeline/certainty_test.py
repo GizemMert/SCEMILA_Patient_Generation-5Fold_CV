@@ -115,7 +115,7 @@ def select_paths(uncertainties, criterion):
 def save_uncertain_patients(selected_paths, new_folder):
     for p, path in selected_paths.items():
         extraction_index = path.find('fnl34_bn_features_layer_7.npy')
-        data_index = path.find('/artificialdata/experiment_3_seed1_41/data/') + len('/artificialdata/experiment_3_seed1_41')
+        data_index = path.find('/artificialdata/experiment_3/data/') + len('/artificialdata/experiment_3')
         extracted_path = path[data_index:extraction_index-1]
         source_path = path[:extraction_index-1]
 
