@@ -1,7 +1,6 @@
 import numpy as np
 import pickle
 from PIL import Image
-import zipfile
 
 import torch
 from torch.utils.data import Dataset
@@ -19,8 +18,6 @@ import pandas as pd
 # Path to pickle objects for quicker data loading
 # used to make sure define_dataset is called before creating new dataset object
 dataset_defined = False
-path_data = None
-path_features = None
 
 
 def process_label(row):
@@ -37,11 +34,10 @@ def process_label(row):
     return lbl_out
 
 
-def set_dataset_path(data_path, features_path):
-    ''' Pass on paths to locate the data and features '''
-    global path_data, path_features
-    path_data = data_path
-    path_features = features_path
+def set_dataset_path(path):
+    ''' Pass on path to locate the data '''
+    global path_data
+    path_data = path
 
 
 # Load and filter dataset according to custom criteria, before Dataset
@@ -70,7 +66,8 @@ def define_dataset(
     label_conv_obj = label_converter_in
 
     # load patient data
-    df_data_master = pd.read_csv('/lustre/groups/labs/marr/qscd01/workspace/ario.sadafi/F_AML/TCIA_data_prepared/metadata.csv').set_index('patient_id')
+    df_data_master = pd.read_csv(
+        '{}/metadata.csv'.format(path_data)).set_index('patient_id')
 
     print("")
     print("Filtering the dataset...")
@@ -117,10 +114,10 @@ def define_dataset(
             continue
 
         # store patient for later loading
-        # store patient for later loading
         if label not in merge_dict_processed.keys():
             merge_dict_processed[label] = []
-        patient_path = os.path.join(row['bag_label'], row.name)
+        patient_path = os.path.join(
+            path_data, 'data', row['bag_label'], row.name)
         merge_dict_processed[label].append(patient_path)
 
     # split dataset
@@ -137,11 +134,10 @@ class MllDataset(Dataset):
 
     def __init__(
             self,
-            folds,
+            folds=range(3),
             aug_im_order=True,
             split=None,
-            patient_bootstrap_exclude=None,
-            features_zip=None):
+            patient_bootstrap_exclude=None):
         '''dataset constructor. Accepts parameters:
         - folds: list of integers or integer in range(NUM_FOLDS) which are set in beginning of this file.
                 Used to define split of data this dataset should countain, e.g. 0-7 for train, 8 for val,
@@ -154,15 +150,16 @@ class MllDataset(Dataset):
                 'No dataset defined. Use define_dataset before initializing dataset class')
 
         self.aug_im_order = aug_im_order
-        self.features_zip = features_zip
+
+        # grab data split for corresponding folds
         self.data = data_split.return_folds(folds)
         self.paths, self.labels = [], []
+
+        # reduce the hard drive burden by storing features in a dictionary in
+        # RAM, as they will be used again
         self.features_loaded = {}
 
-
-        # Open the zip file containing features
-        self.zipfile = zipfile.ZipFile(features_zip, 'r')
-
+        # enter paths and corresponding labels in self.data
         for key, val in self.data.items():
             if patient_bootstrap_exclude is not None:
                 if(0 <= patient_bootstrap_exclude < len(val)):
@@ -173,6 +170,7 @@ class MllDataset(Dataset):
                     patient_bootstrap_exclude -= len(val)
 
             self.paths.extend(val)
+
             label_conv_obj.add(key, len(val), split=split)
             label = label_conv_obj[key]
             self.labels.extend([label] * len(val))
@@ -189,11 +187,11 @@ class MllDataset(Dataset):
 
         # only load if object has not yet been loaded
         if (path not in self.features_loaded):
-            if self.zipfile:
-                with self.zipfile.open(os.path.join(path, prefix + 'bn_features_layer_7.npy')) as file:
-                    bag = np.load(file)
-            else:
-                bag = np.load(os.path.join(path, prefix + 'bn_features_layer_7.npy'))
+            bag = np.load(
+                os.path.join(
+                    path,
+                    prefix +
+                    'bn_features_layer_7.npy'))
             self.features_loaded[path] = bag
         else:
             bag = self.features_loaded[path].copy()
