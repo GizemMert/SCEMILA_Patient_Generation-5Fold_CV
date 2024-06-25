@@ -144,3 +144,5 @@ save_uncertain_patients(selected_max_paths, new_folder)
 new_folder = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/artificialdata/uncertain_patients_sum'
 selected_sum_paths = select_paths(sum_uncertainties, 10)
 save_uncertain_patients(selected_sum_paths, new_folder)
+
+print("Uncertain patients are saved!")
