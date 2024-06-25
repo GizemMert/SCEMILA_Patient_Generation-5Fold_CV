@@ -67,7 +67,7 @@ def define_dataset(
 
     # load patient data
     df_data_master = pd.read_csv(
-        '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/metadata.csv'.format(path_data)).set_index('patient_id')
+        '{}/metadata.csv'.format(path_data)).set_index('patient_id')
 
     print("")
     print("Filtering the dataset...")
