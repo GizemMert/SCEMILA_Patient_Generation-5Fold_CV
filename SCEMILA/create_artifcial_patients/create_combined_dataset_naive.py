@@ -75,7 +75,7 @@ for p in percentage:
         paths_mixed_patients[key] = value
         paths_mixed_patients[key] += paths_artificial_patients.get(key, [])
 
-    df1 = pd.read_csv(os.path.dirname(src_data_folder)+"/metadata.csv")
+    df1 = pd.read_csv("/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/data/metadata.csv")
     df2 = pd.read_csv(os.path.dirname(src_artificialdata_folder) + "/metadata.csv")
 
     selected_patients_df = pd.DataFrame(selected_patients, columns=['patient_id', 'bag_label'])
