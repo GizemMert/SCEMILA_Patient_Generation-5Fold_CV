@@ -13,12 +13,12 @@ import pickle
 
 CLASSES = ['control', 'RUNX1_RUNX1T1', 'NPM1', 'CBFB_MYH11', 'PML_RARA']
 num_classes = 5
-seed = 20
+seed = 42
 experiment_source = 'experiment_3'
 real_data_source = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/data/data'
 SOURCE_FOLDER = f'/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/artificialdata/{experiment_source}'
 TARGET_FOLDER = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/result_folder_1'
-output_folder = f'/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/mixed_uncertain_seed{seed}'
+output_folder = f'/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/mixed_uncertain_fixbug_seed{seed}'
 
 def get_patient_name(path):
     return re.search(r"/data/\w+/([0-9a-zA-Z_]*)", path).group(1)
@@ -212,6 +212,7 @@ def concatenate_metadata(original_metadata_path, uncertain_patients_folder):
 original_metadata_path = "/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/data/metadata.csv"
 concatenate_metadata(original_metadata_path, output_folder)
 
+""""
 # Check for duplicates
 percentages = [10, 20, 30, 50]
 for percentage in percentages:
@@ -221,3 +222,4 @@ for percentage in percentages:
     for key, value_list in file_paths_dict.items():
         if len(value_list) != len(set(value_list)):
             print(f"Duplicates found for seed {seed}, {percentage}%, and key {key}. Duplicates: {set([item for item in value_list if value_list.count(item) > 1])}")
+"""
