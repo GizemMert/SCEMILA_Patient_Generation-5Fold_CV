@@ -167,6 +167,8 @@ with open(results_file, 'a') as f:
     f.write("Fold\tTrain Accuracy\tVal Accuracy\tTest Accuracy\n")
 
 for fold in range(5):
+    print(f"Starting fold {fold + 1} of 5...")
+
     datasets = {}
 
     # Set up folds for cross-validation, including the test set
@@ -233,16 +235,23 @@ for fold in range(5):
     )
     model, conf_matrix, data_obj = train_obj.launch_training()
 
+    # Evaluate on training set
+    _, train_accuracy, _, _ = train_obj.dataset_to_model(train_obj.epochs - 1, 'train')
+    # Evaluate on validation set
+    _, val_accuracy, _, _ = train_obj.dataset_to_model(train_obj.epochs - 1, 'val')
+    # Test set accuracy is already calculated in launch_training
+    test_accuracy = train_obj.test_accuracy
+
     # Append results for this fold
-    results['train'].append(train_obj.train_accuracy)
-    results['val'].append(train_obj.val_accuracy)
-    results['test'].append(train_obj.test_accuracy)
+    results['train'].append(train_accuracy)
+    results['val'].append(val_accuracy)
+    results['test'].append(test_accuracy)
 
     # Print and save results for this fold
-    fold_results = f"Fold {fold}: Train Accuracy: {train_obj.train_accuracy:.2f}, Val Accuracy: {train_obj.val_accuracy:.2f}, Test Accuracy: {train_obj.test_accuracy:.2f}\n"
+    fold_results = f"Fold {fold}: Train Accuracy: {train_accuracy:.2f}, Val Accuracy: {val_accuracy:.2f}, Test Accuracy: {test_accuracy:.2f}\n"
     print(fold_results)
     with open(results_file, 'a') as f:
-        f.write(f"{fold}\t{train_obj.train_accuracy:.2f}\t{train_obj.val_accuracy:.2f}\t{train_obj.test_accuracy:.2f}\n")
+        f.write(f"{fold}\t{train_accuracy:.2f}\t{val_accuracy:.2f}\t{test_accuracy:.2f}\n")
 
     # Save confusion matrix from test set, all the data, model, print parameters
     np.save(os.path.join(args.target_folder, f'test_conf_matrix_fold{fold}.npy'), conf_matrix)
@@ -265,6 +274,7 @@ with open(results_file, 'a') as f:
     f.write(f"Train\t{avg_train_accuracy:.2f}\n")
     f.write(f"Val\t{avg_val_accuracy:.2f}\n")
     f.write(f"Test\t{avg_test_accuracy:.2f}\n")
+
 
 end = time.time()
 runtime = end - start
