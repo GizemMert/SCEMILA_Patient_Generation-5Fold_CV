@@ -2,6 +2,10 @@ import os
 import re
 import torch
 import torch.nn.functional as F
+import sys
+module_path = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/SCEMILA/ml_pipeline'
+if module_path not in sys.path:
+    sys.path.append(module_path)
 from dataset_mixed import *  # dataset
 from model import *  # actual MIL model
 from sklearn import metrics as metrics
