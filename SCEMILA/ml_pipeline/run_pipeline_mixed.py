@@ -136,49 +136,39 @@ print("")
 print('Initialize datasets...')
 with open(SOURCE_FOLDER+'/file_paths.pkl', 'rb') as f:
     mixed_data_filepaths = pickle.load(f)
-label_conv_obj = label_converter.LabelConverter(path_preload="/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/result_folder_1/class_conversion.csv")
+label_conv_obj = label_converter.LabelConverter()
 set_dataset_path(SOURCE_FOLDER)
 define_dataset(
-    num_folds=4,
+    num_folds=5,
     prefix_in=args.prefix,
     label_converter_in=label_conv_obj,
-    filter_diff_count=int(
-        args.filter_diff),
-    filter_quality_minor_assessment=int(
-        args.filter_mediocre_quality),
-    merge_dict_processed= mixed_data_filepaths)
+    filter_diff_count=int(args.filter_diff),
+    filter_quality_minor_assessment=int(args.filter_mediocre_quality),
+    merge_dict_processed=mixed_data_filepaths
+)
+
 datasets = {}
 
-# set up folds for cross validation
-folds = {'train': np.array([0, 1, 2]), 'val': np.array([
-    3])}
-for name, fold in folds.items():
-    folds[name] = ((fold + int(args.fold)) % 4).tolist()
+# Set up folds for cross-validation, including the test set
+num_folds = 5
+folds = {'train': [], 'val': [], 'test': []}
 
-datasets['train'] = MllDataset(
-    folds=folds['train'],
-    aug_im_order=True,
-    split='train',
-    patient_bootstrap_exclude=int(
-        args.bootstrap_idx))
-datasets['val'] = MllDataset(
-    folds=folds['val'],
-    aug_im_order=False,
-    split='val')
-label_conv_obj = label_converter.LabelConverter(path_preload="/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/result_folder_1/class_conversion.csv")
-set_dataset_path("/mnt/volume/shared/test_data")
-define_dataset(
-    num_folds=1,
-    prefix_in=args.prefix,
-    label_converter_in=label_conv_obj,
-    filter_diff_count=int(
-        args.filter_diff),
-    filter_quality_minor_assessment=int(
-        args.filter_mediocre_quality))
-datasets['test'] = MllDataset(
-    folds=0,
-    aug_im_order=False,
-    split='test')
+# Determine the fold numbers
+all_folds = np.arange(num_folds)
+val_fold = int(args.fold)
+test_fold = (val_fold + 1) % num_folds  # Use the next fold as the test set
+train_folds = [fold for fold in all_folds if fold != val_fold and fold != test_fold]
+
+# Set the fold indices
+folds['val'] = [val_fold]
+folds['test'] = [test_fold]
+folds['train'] = train_folds
+
+# Initialize datasets
+datasets['train'] = MllDataset(folds=folds['train'], aug_im_order=True, split='train', patient_bootstrap_exclude=int(args.bootstrap_idx))
+datasets['val'] = MllDataset(folds=folds['val'], aug_im_order=False, split='val')
+datasets['test'] = MllDataset(folds=folds['test'], aug_im_order=False, split='test')
+
 
 # store conversion from true string labels to artificial numbers for
 # one-hot encoding
@@ -194,24 +184,7 @@ dataloaders = {}
 
 # ensure balanced sampling
 # get total sample sizes
-#exp0
 class_sizes = get_class_sizes(SOURCE_FOLDER,mixed_data_filepaths)
-#exp1
-#class_sizes = [36, 29, 33, 29, 35]
-#exp2
-#class_sizes = [41, 41, 41, 41, 41]
-#exp3
-#class_sizes = [41, 41, 41, 41, 41]
-#mixed10
-#class_sizes = [29, 53, 32, 21, 33]
-#mixed20
-#class_sizes = [32, 60, 36, 24, 38]
-#mixed30
-#class_sizes = [37, 69, 41, 27, 43]
-#mixed40
-#class_sizes = [43, 80, 48, 33, 50]
-#mixed50
-#class_sizes = [52, 96, 58, 38, 60]
 # calculate label frequencies
 label_freq = [class_sizes[c] / sum(class_sizes) for c in range(class_count)]
 # balance sampling frequencies for equal sampling
