@@ -51,7 +51,7 @@ def copyfiles_art(src_folder, dest_folder, patient_counts):
     return selected_patients, paths
 
 # Specify your source and destination folders
-src_data_folder = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/data'
+src_data_folder = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/data/data'
 src_artificialdata_folder = f'/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/artificialdata/experiment_3/data'
 mixeddata_folder = f'/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/mixed_seed{seed}'
 percentage = [10, 20, 30, 50]
