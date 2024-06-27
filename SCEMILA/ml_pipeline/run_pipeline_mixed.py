@@ -136,7 +136,7 @@ print("")
 print('Initialize datasets...')
 with open(SOURCE_FOLDER+'/file_paths.pkl', 'rb') as f:
     mixed_data_filepaths = pickle.load(f)
-label_conv_obj = label_converter.LabelConverter()
+label_conv_obj = None
 set_dataset_path(SOURCE_FOLDER)
 define_dataset(
     num_folds=5,
@@ -168,6 +168,19 @@ with open(results_file, 'a') as f:
 
 for fold in range(5):
     print(f"Starting fold {fold + 1} of 5...")
+
+    # Reinitialize LabelConverter for each fold
+    label_conv_obj = label_converter.LabelConverter()
+    set_dataset_path(args.source_folder)
+    define_dataset(
+        num_folds=5,
+        prefix_in=args.prefix,
+        label_converter_in=label_conv_obj,
+        filter_diff_count=int(args.filter_diff),
+        filter_quality_minor_assessment=int(args.filter_mediocre_quality),
+        merge_dict_processed=mixed_data_filepaths
+    )
+
 
     datasets = {}
 
