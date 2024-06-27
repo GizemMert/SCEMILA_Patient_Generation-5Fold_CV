@@ -124,7 +124,7 @@ TARGET_FOLDER = args.target_folder
 SOURCE_FOLDER = args.source_folder
 
 # store results in target folder
-TARGET_FOLDER = os.path.join(TARGET_FOLDER, args.result_folder)
+TARGET_FOLDER = os.path.join(args.target_folder, args.result_folder)
 if not os.path.exists(TARGET_FOLDER):
     os.mkdir(TARGET_FOLDER)
 start = time.time()
@@ -191,14 +191,24 @@ for fold in range(5):
     datasets['val'] = MllDataset(folds=folds['val'], aug_im_order=False, split='val')
     datasets['test'] = MllDataset(folds=folds['test'], aug_im_order=False, split='test')
 
+    df = label_conv_obj.df
+    df.to_csv(os.path.join(args.target_folder, "class_conversion.csv"), index=False)
+    print("Data distribution: ")
+    print(df)
+    print(df.shape)
+
     # Ensure balanced sampling for training
-    class_sizes = get_class_sizes(args.prefix, mixed_data_filepaths)
+    class_sizes = get_class_sizes(SOURCE_FOLDER, mixed_data_filepaths)
     class_count = len(class_sizes)
     label_freq = [class_sizes[c] / sum(class_sizes) for c in range(class_count)]
     individual_sampling_prob = [(1 / class_count) * (1 / label_freq[c]) for c in range(class_count)]
+    print(datasets['train'])
 
     idx_sampling_freq_train = torch.tensor(individual_sampling_prob)[datasets['train'].labels]
+    idx_sampling_freq_val = torch.tensor(individual_sampling_prob)[
+        datasets['val'].labels]
     sampler_train = WeightedRandomSampler(weights=idx_sampling_freq_train, replacement=True, num_samples=len(idx_sampling_freq_train))
+    # sampler_val = WeightedRandomSampler(weights=idx_sampling_freq_val, replacement=True, num_samples=len(idx_sampling_freq_val))
 
     dataloaders = {
         'train': DataLoader(datasets['train'], sampler=sampler_train),
