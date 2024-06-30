@@ -65,7 +65,7 @@ sc_class_labels = ['eosinophil granulocyte', 'reactive lymphocyte',
                    'normo', 'plasma cell', 'hair cell', 'bilobed M3v',
                    'mononucleosis']
 
-df_sc_res = pd.read_csv("/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/single_cell_results.csv", index_col=0).drop("patient", axis=1)
+df_sc_res = pd.read_csv("/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/data/single_cell_results.csv", index_col=0).drop("patient", axis=1)
 df_meanstd = df_sc_res.groupby(["AML_subtype"]).agg(["mean", "std"])
 
 # This cell creates artificial patients and stores the single cell counts per patient in cell_type_counts_dict,
