@@ -55,6 +55,8 @@ for folder_class in class_labels:
                     number = extract_number_image(image)
                     df.loc[len(df)] = [get_patient_name(folder_patient), AML_subtype, sc_classes[number], image]
 
+print(df['AML_subtype'].unique())
+
 # Calculate mean and std for each cell type that will be later used to sample data with normal distribution
 sc_class_labels = ['eosinophil granulocyte', 'reactive lymphocyte',
                    'neutrophil granulocyte (segmented)', 'typical lymphocyte',
@@ -66,6 +68,7 @@ sc_class_labels = ['eosinophil granulocyte', 'reactive lymphocyte',
                    'mononucleosis']
 
 df_sc_res = pd.read_csv("/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/data/single_cell_results_2.csv", index_col=0).drop("patient", axis=1)
+print(df_sc_res['AML_subtype'].unique())
 df_meanstd = df_sc_res.groupby(["AML_subtype"]).agg(["mean", "std"])
 
 # This cell creates artificial patients and stores the single cell counts per patient in cell_type_counts_dict,
