@@ -29,7 +29,7 @@ sc_class_labels = [
 aml_class_labels = ["CBFB_MYH11", "control", "NPM1", "PML_RARA", "RUNX1_RUNX1T1"]
 
 # Path to the folder containing your files
-data_path = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/data'
+data_path = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/data/data'
 result_path = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/data'
 
 
@@ -74,4 +74,4 @@ for folder_class in os.listdir(data_path):
 
 df[sc_class_labels] = df[sc_class_labels].astype(int)
 df[["patient", "AML_subtype"]] = df[["patient", "AML_subtype"]].astype(str)
-df.to_csv(result_path + "/single_cell_results.csv")
+df.to_csv(result_path + "/single_cell_results_2.csv")
