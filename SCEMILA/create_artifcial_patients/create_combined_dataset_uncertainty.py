@@ -17,11 +17,11 @@ import pickle
 
 CLASSES = ['control', 'RUNX1_RUNX1T1', 'NPM1', 'CBFB_MYH11', 'PML_RARA']
 num_classes = 5
-seed = 42
+seed = 24
 experiment_source = 'experiment_3'
 real_data_source = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/data/data'
 SOURCE_FOLDER = f'/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/artificialdata/{experiment_source}'
-TARGET_FOLDER = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/result_folder_1'
+TARGET_FOLDER = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/result_folder_2'
 output_folder = f'/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/mixed_uncertain_fixbug_seed{seed}'
 
 def get_patient_name(path):
