@@ -38,8 +38,8 @@ data_directory = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fo
 subtype = data_directory + "/NPM1"
 n_patients = 37
 experiment_name = "experiment_3"
-output_folder = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/artificialdata/' + experiment_name + '/data'
-output_folder_csv = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/artificialdata/' + experiment_name
+output_folder = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/artificialdata2/' + experiment_name + '/data'
+output_folder_csv = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/artificialdata2/' + experiment_name
 
 #Iterate over real dataset and store image paths in a dataframe df
 df = pd.DataFrame(columns=["patient","AML_subtype", "SC_Label", "image_path"])
@@ -70,7 +70,7 @@ sc_class_labels= ['eosinophil granulocyte', 'reactive lymphocyte',
        'normo', 'plasma cell', 'hair cell', 'bilobed M3v',
        'mononucleosis']
 #If single_cell_results does not exist yet run notebook create_single_cell_results
-df_sc_res=pd.read_csv("/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/data/single_cell_results_2.csv",index_col=0).drop("patient", axis=1)
+df_sc_res=pd.read_csv("/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/single_cell_results.csv",index_col=0).drop("patient", axis=1)
 df_meanstd = df_sc_res.groupby(["AML_subtype"]).agg(["mean","std"])
 
 # This cell creates artificial patients and stores the single cell counts per patient in cell_type_counts_dict,
