@@ -33,7 +33,7 @@ def get_classification_patient(patient_folder):
     sc_class = np.argmax(sc_probs, axis=1)
     return sc_class
 
-data_directory = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/data'
+data_directory = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/data/data'
 subtype = data_directory + "/NPM1"
 n_patients = 37
 experiment_name = "experiment_3"
