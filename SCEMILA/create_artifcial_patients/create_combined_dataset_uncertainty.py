@@ -20,7 +20,7 @@ num_classes = 5
 seed = 24
 experiment_source = 'experiment_3'
 real_data_source = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/data/data'
-SOURCE_FOLDER = f'/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/artificialdata/{experiment_source}'
+SOURCE_FOLDER = f'/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/artificialdata2/{experiment_source}'
 TARGET_FOLDER = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/result_folder_2'
 output_folder = f'/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/mixed_uncertain_fixbug_seed{seed}'
 
@@ -216,6 +216,7 @@ def concatenate_metadata(original_metadata_path, uncertain_patients_folder):
 original_metadata_path = "/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/data/metadata.csv"
 concatenate_metadata(original_metadata_path, output_folder)
 
+print("Finished")
 """"
 # Check for duplicates
 percentages = [10, 20, 30, 50]
