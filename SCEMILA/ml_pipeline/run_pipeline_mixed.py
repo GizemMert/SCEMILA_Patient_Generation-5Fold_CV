@@ -129,6 +129,10 @@ if not os.path.exists(TARGET_FOLDER):
     os.mkdir(TARGET_FOLDER)
 start = time.time()
 
+def set_dataset_path(path):
+    ''' Pass on path to locate the data '''
+    global path_data
+    path_data = path
 
 # 2: Dataset
 # Initialize datasets, dataloaders, ...
