@@ -50,19 +50,19 @@ for fold, (train_idx, test_idx) in enumerate(skf.split(df['path'], df['label']))
     Path(train_path).mkdir(parents=True, exist_ok=True)
     Path(test_path).mkdir(parents=True, exist_ok=True)
 
-    # Copy training files
+    # Copy training directories
     for train_file in train_df['path']:
         label = train_df[train_df['path'] == train_file]['label'].values[0]
-        dest_folder = os.path.join(train_path, label)
-        Path(dest_folder).mkdir(parents=True, exist_ok=True)
-        shutil.copy(train_file, dest_folder)
+        dest_folder = os.path.join(train_path, label, os.path.basename(train_file))
+        Path(os.path.join(train_path, label)).mkdir(parents=True, exist_ok=True)
+        shutil.copytree(train_file, dest_folder)
 
-    # Copy testing files
+    # Copy testing directories
     for test_file in test_df['path']:
         label = test_df[test_df['path'] == test_file]['label'].values[0]
-        dest_folder = os.path.join(test_path, label)
-        Path(dest_folder).mkdir(parents=True, exist_ok=True)
-        shutil.copy(test_file, dest_folder)
+        dest_folder = os.path.join(test_path, label, os.path.basename(test_file))
+        Path(os.path.join(test_path, label)).mkdir(parents=True, exist_ok=True)
+        shutil.copytree(test_file, dest_folder)
 
     # Save metadata for train and test sets
     train_metadata = metadata[metadata['patient_id'].isin(train_df['patient_id'])]
