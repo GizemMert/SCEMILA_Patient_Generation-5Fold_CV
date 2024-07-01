@@ -14,46 +14,39 @@ def get_counts_vector(labels_vector):
     counts_vector[unique_labels] = label_counts
     return counts_vector, unique_labels
 
+sc_class_labels= ['eosinophil granulocyte', 'reactive lymphocyte',
+       'neutrophil granulocyte (segmented)', 'typical lymphocyte',
+       'other', 'neutrophil granulocyte (band)', 'monocyte',
+       'large granulated lymphocyte', 'atypical promyelocyte',
+       'basophil granulocyte', 'smudge cell', 'neoplastic lymphocyte',
+       'promyelocyte', 'myelocyte', 'myeloblast', 'metamyelocyte',
+       'normo', 'plasma cell', 'hair cell', 'bilobed M3v',
+       'mononucleosis']
 
-sc_class_labels = [
-    'eosinophil granulocyte', 'reactive lymphocyte',
-    'neutrophil granulocyte (segmented)', 'typical lymphocyte',
-    'other', 'neutrophil granulocyte (band)', 'monocyte',
-    'large granulated lymphocyte', 'atypical promyelocyte',
-    'basophil granulocyte', 'smudge cell', 'neoplastic lymphocyte',
-    'promyelocyte', 'myelocyte', 'myeloblast', 'metamyelocyte',
-    'normo', 'plasma cell', 'hair cell', 'bilobed M3v',
-    'mononucleosis'
-]
-
-aml_class_labels = ["CBFB_MYH11", "control", "NPM1", "PML_RARA", "RUNX1_RUNX1T1"]
-
+aml_class_labels = ["CBFB_MYH11","control","NPM1","PML_RARA","RUNX1_RUNX1T1"]
 # Path to the folder containing your files
-data_path = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/data/data'
-result_path = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/data'
+
+data_path = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/Folds/fold_0/train/data'
+result_path = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/Folds/fold_0/train'
 
 
 def get_patient_name(path):
     return re.search(r"/data/\w+/([A-Z]{3})", path).group(1)
 
-
 def get_class_name(path):
     return re.search(r"/data/(\w+)", path).group(1)
-
 
 def get_image_number(path):
     return re.search(r"image_(\d).tif", path).group(1)
 
-
 def get_classification_patient(patient_folder):
     probs_path = patient_folder + '/single_cell_probabilities.npy'
     sc_probs = np.load(probs_path)
-    sc_class = np.argmax(sc_probs, axis=1)
+    sc_class= np.argmax(sc_probs, axis=1)
     return sc_class
 
 
 df = pd.DataFrame(columns=["patient", "AML_subtype"] + sc_class_labels)
-
 # Save class classification count for each patient in csv file
 for folder_class in os.listdir(data_path):
     folder_class = os.path.join(data_path, folder_class)
@@ -72,6 +65,6 @@ for folder_class in os.listdir(data_path):
                 df.loc[len(df)] = np.array(
                     [get_patient_name(folder_patient), get_class_name(folder_patient)] + counts_vector.tolist())
 
-df[sc_class_labels] = df[sc_class_labels].astype(int)
-df[["patient", "AML_subtype"]] = df[["patient", "AML_subtype"]].astype(str)
-df.to_csv(result_path + "/single_cell_results_2.csv")
+df[sc_class_labels]=df[sc_class_labels].astype(int)
+df[["patient","AML_subtype"]]=df[["patient","AML_subtype"]].astype(str)
+df.to_csv(result_path+"/single_cell_results.csv")
