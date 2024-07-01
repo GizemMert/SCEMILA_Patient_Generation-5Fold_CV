@@ -23,10 +23,10 @@ def extract_number_image(file_path):
     return int(match.group(1))
 
 def get_patient_name(path):
-    return re.search(r"/data/data/\w+/([A-Z]{3})", path).group(1)
+    return re.search(r"/data/\w+/([A-Z]{3})", path).group(1)
 
 def get_class_name(path):
-    return re.search(r"/data/data/(\w+)", path).group(1)
+    return re.search(r"/data/(\w+)", path).group(1)
 
 def get_classification_patient(patient_folder):
     probs_path = patient_folder + '/single_cell_probabilities.npy'
@@ -34,12 +34,12 @@ def get_classification_patient(patient_folder):
     sc_class= np.argmax(sc_probs, axis=1)
     return sc_class
 
-data_directory = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/data/data'
+data_directory = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/Folds/fold_0/train/data'
 subtype = data_directory + "/NPM1"
-n_patients = 37
+n_patients = 5
 experiment_name = "experiment_3"
-output_folder = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/artificialdata2/' + experiment_name + '/data'
-output_folder_csv = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/artificialdata2/' + experiment_name
+output_folder = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/artificialdata_fold_0/' + experiment_name + '/data'
+output_folder_csv = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/artificialdata_fold_0/' + experiment_name
 
 #Iterate over real dataset and store image paths in a dataframe df
 df = pd.DataFrame(columns=["patient","AML_subtype", "SC_Label", "image_path"])
@@ -58,8 +58,6 @@ for folder_class in class_labels:
                     number=extract_number_image(image)
                     df.loc[len(df)]=[get_patient_name(folder_patient), AML_subtype, sc_classes[number],image]
 
-print(df['AML_subtype'].unique())
-
 #calculate mean and std for each cell type that will be later used to sample data with normal distribution
 sc_class_labels= ['eosinophil granulocyte', 'reactive lymphocyte',
        'neutrophil granulocyte (segmented)', 'typical lymphocyte',
@@ -70,11 +68,11 @@ sc_class_labels= ['eosinophil granulocyte', 'reactive lymphocyte',
        'normo', 'plasma cell', 'hair cell', 'bilobed M3v',
        'mononucleosis']
 #If single_cell_results does not exist yet run notebook create_single_cell_results
-df_sc_res=pd.read_csv("/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/single_cell_results.csv",index_col=0).drop("patient", axis=1)
+df_sc_res=pd.read_csv(data_directory+"/single_cell_results.csv",index_col=0).drop("patient", axis=1)
 df_meanstd = df_sc_res.groupby(["AML_subtype"]).agg(["mean","std"])
 
-# This cell creates artificial patients and stores the single cell counts per patient in cell_type_counts_dict,
-# also it counts the selected_images_per_patient as a sanity check
+#This cell creates artificial patients and stores the single cell couunts per patient in cell_type_counts_dict, also it counts the selected_images_per_patient as a sanity check
+# Dictionary stores cell type counts (how often each cell type appears)
 cell_type_counts_dict = {}
 
 # Dictionary stores the selected images and counts them per SC class per patient
@@ -162,7 +160,6 @@ for aml_subtype in class_labels:
         # Save the array to the .npy file
         np.save(output_npy_file, artificial_features)
 
-# Create metadata including single cell types, not including age, gender and leucocytes_per_µl
 # Create metadata including single cell types, not including age, gender and leucocytes_per_µl
 # Create a list to hold the rows of the DataFrame
 rows = []
