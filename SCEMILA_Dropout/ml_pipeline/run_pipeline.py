@@ -25,10 +25,8 @@ torch.multiprocessing.set_sharing_strategy('file_system')
 # path to dataset
 #SOURCE_FOLDER = r'/mnt/c/Users/Hillary Hauger/Documents/Studium/WS23-24/Computational Methods for Single-cell Biology/smalldataset'
 #Random shuffe: Experiment 1
-TARGET_FOLDER = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/result_folder_2'
-SOURCE_FOLDER = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/data'
-TRAIN_VAL_FOLDER = os.path.join(TARGET_FOLDER, "train_val_data")
-TEST_FOLDER = os.path.join(TARGET_FOLDER, "test_data")
+TARGET_FOLDER = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/result_fold_0'
+SOURCE_FOLDER = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/Folds/fold_0/train'
 
 # get arguments from parser, set up folder
 # parse arguments
@@ -49,7 +47,7 @@ parser.add_argument(
     '--ep',
     help='max. amount after which training should stop',
     required=False,
-    default=150)               # epochs to train
+    default=2)               # epochs to train
 parser.add_argument(
     '--es',
     help='early stopping if no decrease in loss for x epochs',
@@ -111,7 +109,7 @@ print('Initialize datasets...')
 label_conv_obj = label_converter.LabelConverter()
 set_dataset_path(SOURCE_FOLDER)
 define_dataset(
-    num_folds=5,
+    num_folds=4,
     prefix_in=args.prefix,
     label_converter_in=label_conv_obj,
     filter_diff_count=int(
@@ -121,46 +119,61 @@ define_dataset(
 datasets = {}
 
 # set up folds for cross validation
-# Set up folds for cross validation, including the test set
-folds = {'train': np.array([0, 1, 2]), 'val': np.array([3]), 'test': np.array([4])}
+folds = {'train': np.array([0, 1, 2,3]), 'val': np.array([
+    3])}
+'''{'train': np.array([0, 1, 2,3]), 'val': np.array([
+    3]), 'test': np.array([4])}'''
 for name, fold in folds.items():
-    folds[name] = ((fold + int(args.fold)) % 5).tolist()  # Adjust the modulo if necessary
+    folds[name] = ((fold + int(args.fold)) % 4).tolist()
 
-datasets['train'] = MllDataset(folds=folds['train'], aug_im_order=True, split='train', patient_bootstrap_exclude=int(args.bootstrap_idx))
-datasets['val'] = MllDataset(folds=folds['val'], aug_im_order=False, split='val')
-datasets['test'] = MllDataset(folds=folds['test'], aug_im_order=False, split='test')  # Ensure test dataset is included
+datasets['train'] = MllDataset(
+    folds=folds['train'],
+    aug_im_order=True,
+    split='train',
+    patient_bootstrap_exclude=int(
+        args.bootstrap_idx))
+datasets['val'] = MllDataset(
+    folds=folds['val'],
+    aug_im_order=False,
+    split='val')
 
-# Store conversion from true string labels to artificial numbers for one-hot encoding
+# store conversion from true string labels to artificial numbers for
+# one-hot encoding
 df = label_conv_obj.df
 df.to_csv(os.path.join(TARGET_FOLDER, "class_conversion.csv"), index=False)
 class_count = len(df)
 print("Data distribution: ")
 print(df)
 
-# Save the test dataset object
-with open(os.path.join(TEST_FOLDER, 'test_dataset.pkl'), 'wb') as f:
-    pickle.dump(datasets['test'], f)
-
-print("test data is saved")
 # Initialize dataloaders
 print("Initialize dataloaders...")
 dataloaders = {}
 
-# Ensure balanced sampling
+# ensure balanced sampling
+# get total sample sizes
 class_sizes = list(df.size_tot)
+# calculate label frequencies
 label_freq = [class_sizes[c] / sum(class_sizes) for c in range(class_count)]
-individual_sampling_prob = [(1 / class_count) * (1 / label_freq[c]) for c in range(class_count)]
+# balance sampling frequencies for equal sampling
+individual_sampling_prob = [
+    (1 / class_count) * (1 / label_freq[c]) for c in range(class_count)]
 
-idx_sampling_freq_train = torch.tensor(individual_sampling_prob)[datasets['train'].labels]
-idx_sampling_freq_val = torch.tensor(individual_sampling_prob)[datasets['val'].labels]
-idx_sampling_freq_test = torch.tensor(individual_sampling_prob)[datasets['test'].labels]  # Add test sampling if needed
+idx_sampling_freq_train = torch.tensor(individual_sampling_prob)[
+    datasets['train'].labels]
+idx_sampling_freq_val = torch.tensor(individual_sampling_prob)[
+    datasets['val'].labels]
 
-sampler_train = WeightedRandomSampler(weights=idx_sampling_freq_train, replacement=True, num_samples=len(idx_sampling_freq_train))
+sampler_train = WeightedRandomSampler(
+    weights=idx_sampling_freq_train,
+    replacement=True,
+    num_samples=len(idx_sampling_freq_train))
+# sampler_val = WeightedRandomSampler(weights=idx_sampling_freq_val, replacement=True, num_samples=len(idx_sampling_freq_val))
 
-dataloaders['train'] = DataLoader(datasets['train'], sampler=sampler_train)
-dataloaders['val'] = DataLoader(datasets['val'])
-dataloaders['test'] = DataLoader(datasets['test'])
-
+dataloaders['train'] = DataLoader(
+    datasets['train'],
+    sampler=sampler_train)
+dataloaders['val'] = DataLoader(
+    datasets['val'])  # , sampler=sampler_val)
 print("")
 
 
@@ -168,8 +181,8 @@ print("")
 # initialize model, GPU link, training
 
 # set up GPU link and model (check for multi GPU setup)
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-# device="cpu"
+#device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device="cpu"
 ngpu = torch.cuda.device_count()
 print("Found device: ", ngpu, "x ", device)
 
