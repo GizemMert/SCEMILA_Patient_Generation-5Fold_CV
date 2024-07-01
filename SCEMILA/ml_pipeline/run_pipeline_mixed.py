@@ -29,9 +29,9 @@ def get_class_sizes(folder,dictionary=None):
 # 1: Setup. Source Folder is parent folder for both mll_data_master and
 # the /data folder
 # results will be stored here
-TARGET_FOLDER = "/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/results/mixed_seed42_max20"
+TARGET_FOLDER = "/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/results/mixed_seed24_max20"
 # path to dataset
-SOURCE_FOLDER = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/mixed_uncertain_fixbug_seed42/max_20_percent'
+SOURCE_FOLDER = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/mixed_uncertain_fixbug_seed24/max_20_percent'
 
 
 # get arguments from parser, set up folder
@@ -136,21 +136,26 @@ print("")
 print('Initialize datasets...')
 with open(SOURCE_FOLDER+'/file_paths.pkl', 'rb') as f:
     mixed_data_filepaths = pickle.load(f)
-label_conv_obj = None
-set_dataset_path(SOURCE_FOLDER)
-define_dataset(
-    num_folds=5,
-    prefix_in=args.prefix,
-    label_converter_in=label_conv_obj,
-    filter_diff_count=int(args.filter_diff),
-    filter_quality_minor_assessment=int(args.filter_mediocre_quality),
-    merge_dict_processed=mixed_data_filepaths
+
+# Load the test dataset from the saved pickle file
+test_dataset_path = os.path.join("/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/result_folder_2/test_data", 'test_dataset.pkl')
+with open(test_dataset_path, 'rb') as f:
+    test_data = pickle.load(f)
+
+# Initialize the MllDataset for the test data
+datasets = {}
+datasets['test'] = MllDataset(
+    folds=0,
+    aug_im_order=False,
+    split='test'
 )
+
+dataloaders = {}
+dataloaders['test'] = DataLoader(datasets['test'])
 
 results = {
     'train': [],
     'val': [],
-    'test': []
 }
 
 # Ensure the target folder exists
@@ -164,13 +169,13 @@ if os.path.exists(results_file):
     os.remove(results_file)
 
 with open(results_file, 'a') as f:
-    f.write("Fold\tTrain Accuracy\tVal Accuracy\tTest Accuracy\n")
+    f.write("Fold\tTrain Accuracy\tVal Accuracy\t")
 
 for fold in range(5):
     print(f"Starting fold {fold + 1} of 5...")
 
     # Reinitialize LabelConverter for each fold
-    label_conv_obj = label_converter.LabelConverter()
+    label_conv_obj = label_converter.LabelConverter("/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/result_folder_2/class_conversion.csv")
     set_dataset_path(args.source_folder)
     define_dataset(
         num_folds=5,
@@ -186,128 +191,126 @@ for fold in range(5):
 
     # Set up folds for cross-validation, including the test set
     num_folds = 5
-    folds = {'train': [], 'val': [], 'test': []}
+    folds = {'train': [], 'val': []}
 
     # Determine the fold numbers
     all_folds = np.arange(num_folds)
     val_fold = fold
-    test_fold = (val_fold + 1) % num_folds  # Use the next fold as the test set
-    train_folds = [f for f in all_folds if f != val_fold and f != test_fold]
+    train_folds = [f for f in all_folds if f != val_fold]
 
     # Set the fold indices
     folds['val'] = [val_fold]
-    folds['test'] = [test_fold]
     folds['train'] = train_folds
 
     # Initialize datasets
-    datasets['train'] = MllDataset(folds=folds['train'], aug_im_order=True, split='train', patient_bootstrap_exclude=int(args.bootstrap_idx))
-    datasets['val'] = MllDataset(folds=folds['val'], aug_im_order=False, split='val')
-    datasets['test'] = MllDataset(folds=folds['test'], aug_im_order=False, split='test')
+    datasets['train'] = MllDataset(folds=train_folds, aug_im_order=True, split='train',
+                                   patient_bootstrap_exclude=int(args.bootstrap_idx))
+    datasets['val'] = MllDataset(folds=[val_fold], aug_im_order=False, split='val')
+
 
     df = label_conv_obj.df
     df.to_csv(os.path.join(args.target_folder, "class_conversion.csv"), index=False)
+    class_count = 5
     print("Data distribution: ")
     print(df)
-    print(df.shape)
+    print(df.size_tot)
+    # Initialize dataloaders
+    print("Initialize dataloaders...")
+    dataloaders = {}
 
     # Ensure balanced sampling for training
-    class_sizes = get_class_sizes(SOURCE_FOLDER, mixed_data_filepaths)
-    class_count = len(class_sizes)
+    class_sizes = get_class_sizes(SOURCE_FOLDER,mixed_data_filepaths)
     label_freq = [class_sizes[c] / sum(class_sizes) for c in range(class_count)]
-    individual_sampling_prob = [(1 / class_count) * (1 / label_freq[c]) for c in range(class_count)]
+    individual_sampling_prob = [
+        (1 / class_count) * (1 / label_freq[c]) for c in range(class_count)]
     print(datasets['train'])
 
-    idx_sampling_freq_train = torch.tensor(individual_sampling_prob)[datasets['train'].labels]
+    idx_sampling_freq_train = torch.tensor(individual_sampling_prob)[
+        datasets['train'].labels]
     idx_sampling_freq_val = torch.tensor(individual_sampling_prob)[
         datasets['val'].labels]
-    sampler_train = WeightedRandomSampler(weights=idx_sampling_freq_train, replacement=True, num_samples=len(idx_sampling_freq_train))
+    sampler_train = WeightedRandomSampler(
+        weights=idx_sampling_freq_train,
+        replacement=True,
+        num_samples=len(idx_sampling_freq_train))
     # sampler_val = WeightedRandomSampler(weights=idx_sampling_freq_val, replacement=True, num_samples=len(idx_sampling_freq_val))
 
-    dataloaders = {
-        'train': DataLoader(datasets['train'], sampler=sampler_train),
-        'val': DataLoader(datasets['val']),  # Without sampler
-        'test': DataLoader(datasets['test'])  # Without sampler
-    }
+    dataloaders['train'] = DataLoader(
+        datasets['train'],
+        sampler=sampler_train)
+    dataloaders['val'] = DataLoader(
+        datasets['val'])  # , sampler=sampler_val)
 
-    # Initialize model, optimizer, and scheduler
+    print("")
+
+    # 3: Model
+    # initialize model, GPU link, training
+
+    # set up GPU link and model (check for multi GPU setup)
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     ngpu = torch.cuda.device_count()
     print("Found device: ", ngpu, "x ", device)
 
-    model = AMiL(class_count=class_count, multicolumn=int(args.multi_att), device=device)
+    model = AMiL(
+        class_count=class_count,
+        multicolumn=int(
+            args.multi_att),
+        device=device)
 
-    if ngpu > 1:
+    if (ngpu > 1):
         model = torch.nn.DataParallel(model)
     model = model.to(device)
     print("Setup complete.")
     print("")
 
-    optimizer = optim.SGD(model.parameters(), lr=float(args.lr), momentum=0.9, nesterov=True)
+    # set up optimizer and scheduler
+    optimizer = optim.SGD(
+        model.parameters(),
+        lr=float(
+            args.lr),
+        momentum=0.9,
+        nesterov=True)
     scheduler = None
 
-    # Launch training
+    # launch training
     train_obj = ModelTrainer(
         model=model,
         dataloaders=dataloaders,
-        epochs=int(args.ep),
+        epochs=int(
+            args.ep),
         optimizer=optimizer,
         scheduler=scheduler,
         class_count=class_count,
-        early_stop=int(args.es),
-        device=device
-    )
+        early_stop=int(
+            args.es),
+        device=device)
     model, conf_matrix, data_obj = train_obj.launch_training()
 
-    # Evaluate on training set
-    _, train_accuracy, _, _ = train_obj.dataset_to_model(train_obj.epochs - 1, 'train')
-    # Evaluate on validation set
-    _, val_accuracy, _, _ = train_obj.dataset_to_model(train_obj.epochs - 1, 'val')
-    # Test set accuracy is already calculated in launch_training
-    test_accuracy = train_obj.test_accuracy
+    # 4: aftermath
+    # save confusion matrix from test set, all the data , model, print parameters
 
-    # Append results for this fold
-    results['train'].append(train_accuracy)
-    results['val'].append(val_accuracy)
-    results['test'].append(test_accuracy)
+    np.save(os.path.join(args.target_folder, 'test_conf_matrix.npy'), conf_matrix)
+    pickle.dump(
+        data_obj,
+        open(
+            os.path.join(
+                args.target_folder,
+                'testing_data.pkl'),
+            "wb"))
 
-    # Print and save results for this fold
-    fold_results = f"Fold {fold}: Train Accuracy: {train_accuracy:.2f}, Val Accuracy: {val_accuracy:.2f}, Test Accuracy: {test_accuracy:.2f}\n"
-    print(fold_results)
-    with open(results_file, 'a') as f:
-        f.write(f"{fold}\t{train_accuracy:.2f}\t{val_accuracy:.2f}\t{test_accuracy:.2f}\n")
+    if (int(args.save_model)):
+        torch.save(model, os.path.join(args.target_folder, 'model.pt'))
+        torch.save(model, os.path.join(args.target_folder, 'state_dictmodel.pt'))
 
-    # Save confusion matrix from test set, all the data, model, print parameters
-    np.save(os.path.join(args.target_folder, f'test_conf_matrix_fold{fold}.npy'), conf_matrix)
-    pickle.dump(data_obj, open(os.path.join(args.target_folder, f'testing_data_fold{fold}.pkl'), "wb"))
+    end = time.time()
+    runtime = end - start
+    time_str = str(int(runtime // 3600)) + "h" + str(int((runtime %
+                                                          3600) // 60)) + "min" + str(int(runtime % 60)) + "s"
 
-    if int(args.save_model):
-        torch.save(model, os.path.join(args.target_folder, f'model_fold{fold}.pt'))
-        torch.save(model.state_dict(), os.path.join(args.target_folder, f'state_dictmodel_fold{fold}.pt'))
-
-# Calculate average accuracy across all folds
-avg_train_accuracy = np.mean(results['train'])
-avg_val_accuracy = np.mean(results['val'])
-avg_test_accuracy = np.mean(results['test'])
-
-# Print and save average results
-avg_results = f"Average Train Accuracy: {avg_train_accuracy:.2f}\nAverage Validation Accuracy: {avg_val_accuracy:.2f}\nAverage Test Accuracy: {avg_test_accuracy:.2f}\n"
-print(avg_results)
-with open(results_file, 'a') as f:
-    f.write("\nAverages\n")
-    f.write(f"Train\t{avg_train_accuracy:.2f}\n")
-    f.write(f"Val\t{avg_val_accuracy:.2f}\n")
-    f.write(f"Test\t{avg_test_accuracy:.2f}\n")
-
-
-end = time.time()
-runtime = end - start
-time_str = str(int(runtime // 3600)) + "h" + str(int((runtime %
-                                                      3600) // 60)) + "min" + str(int(runtime % 60)) + "s"
-
-# other parameters
-print("")
-print("------------------------Final report--------------------------")
-print('prefix', args.prefix)
-print('Runtime', time_str)
-print('max. Epochs', args.ep)
-print('Learning rate', args.lr)
+    # other parameters
+    print("")
+    print("------------------------Final report--------------------------")
+    print('prefix', args.prefix)
+    print('Runtime', time_str)
+    print('max. Epochs', args.ep)
+    print('Learning rate', args.lr)
