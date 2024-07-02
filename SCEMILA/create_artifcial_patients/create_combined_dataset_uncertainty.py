@@ -213,7 +213,7 @@ def concatenate_metadata(original_metadata_path, uncertain_patients_folder):
                 print(output_file_path)
                 concatenated_metadata_df.to_csv(output_file_path, index=False)
 
-original_metadata_path = "/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/data/metadata.csv"
+original_metadata_path = "/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/Folds/fold_0/train/metadata.csv"
 concatenate_metadata(original_metadata_path, output_folder)
 
 print("Finished")
