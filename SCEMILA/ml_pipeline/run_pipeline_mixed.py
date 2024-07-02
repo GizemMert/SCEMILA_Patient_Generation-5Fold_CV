@@ -124,12 +124,12 @@ TARGET_FOLDER = args.target_folder
 SOURCE_FOLDER = args.source_folder
 
 # store results in target folder
-"""
+
 TARGET_FOLDER = os.path.join(TARGET_FOLDER, args.result_folder)
 if not os.path.exists(TARGET_FOLDER):
     os.mkdir(TARGET_FOLDER)
 start = time.time()
-"""
+
 
 
 # 2: Dataset
