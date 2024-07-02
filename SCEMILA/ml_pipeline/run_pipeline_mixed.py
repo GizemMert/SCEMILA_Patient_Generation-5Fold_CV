@@ -287,7 +287,7 @@ model, conf_matrix, data_obj = train_obj.launch_training()
 # 4: aftermath
 # save confusion matrix from test set, all the data , model, print parameters
 
-np.save(os.path.join(args.args.target_folder, 'test_conf_matrix.npy'), conf_matrix)
+np.save(os.path.join(args.target_folder, 'test_conf_matrix.npy'), conf_matrix)
 pickle.dump(
     data_obj,
     open(
