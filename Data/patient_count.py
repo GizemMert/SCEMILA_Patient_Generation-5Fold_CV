@@ -1,5 +1,18 @@
 import os
 
+import pickle
+
+pkl_file_path = "/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/mixed_uncertain_fold_0_seed42/max_20_percent/file_paths.pkl"
+
+# Load the pkl file
+with open(pkl_file_path, 'rb') as file:
+    file_paths = pickle.load(file)
+
+# Count the number of file paths
+total_file_paths = len(file_paths)
+
+print(f"Total number of file paths: {total_file_paths}")
+"""
 def count_subfolders(main_folder):
     subfolders_count = {}
 
@@ -24,3 +37,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+"""
