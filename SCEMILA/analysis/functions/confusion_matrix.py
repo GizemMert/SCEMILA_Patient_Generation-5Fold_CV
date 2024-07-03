@@ -167,38 +167,37 @@ def show_pred_mtrx(pred_mtrx, class_conversion=None, fig_size=None, normalize_ro
         label.set_ha('right')
 
     # image count plot
-    image_counts = []
-    for el in list(class_conversion.true_lbl):
-        images_of_class = sc_df.loc[sc_df['gt_label'] == el]
-        image_counts.append(len(images_of_class))
-    ax2.barh(range(class_size), image_counts, color='black')   
 
-    ax2.set_xlim(0,max(image_counts)*1.05)
-    ax2.set_yticks([])
-    ax2.set_ylim(class_size-0.5, -0.5)
-    
-    ax2.set_title("Single cell images", fontdict=None, fontsize=fontsize)
-    ax2.tick_params(axis='both', which='major', labelsize=fontsize)
-    for label in ax2.get_xticklabels():
-        label.set_rotation(45)
-        label.set_ha('right')
+    # image count plot
+    if sc_df is not None:
+        image_counts = []
+        for el in list(class_conversion.true_lbl):
+            images_of_class = sc_df.loc[sc_df['gt_label'] == el]
+            image_counts.append(len(images_of_class))
+        ax2.barh(range(class_size), image_counts, color='black')
+        ax2.set_xlim(0,max(image_counts)*1.05)
+        ax2.set_yticks([])
+        ax2.set_ylim(class_size-0.5, -0.5)
+        ax2.set_title("Single cell images", fontdict=None, fontsize=fontsize)
+        ax2.tick_params(axis='both', which='major', labelsize=fontsize)
+        for label in ax2.get_xticklabels():
+            label.set_rotation(45)
+            label.set_ha('right')
 
-    if(show_size_values):
+        if(show_size_values):
+            log_min = 0
+            log_max = max(image_counts)
+            log_border = log_max*0.66
 
-        log_min = 0
-        log_max = max(image_counts)
-        log_border = log_max*0.66
+            for el in range(class_size):
+                size = image_counts[el]
 
-        for el in range(class_size):
-            size = image_counts[el]
+                if(size > log_border):
+                    ax2.text(size, el, str(size) + " ", va='center', ha='right', color='w', fontsize=fontsize)
+                else:
+                    ax2.text(size, el, " " + str(size), va='center', ha='left', color='k', fontsize=fontsize)
 
-            if(size > log_border):
-                ax2.text(size, el, str(size) + " ", va='center', ha='right', color='w', fontsize=fontsize)
-            else:
-                ax2.text(size, el, " " + str(size), va='center', ha='left', color='k', fontsize=fontsize)
-
-
-    plt.show()
+        plt.show()
 
     if not path_save is None:
         fig.savefig(path_save, bbox_inches='tight')
