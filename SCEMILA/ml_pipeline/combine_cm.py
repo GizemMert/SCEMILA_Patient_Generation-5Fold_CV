@@ -2,13 +2,8 @@ import numpy as np
 import os
 import label_converter
 import sys
-import importlib.util
-confusion_matrix_path = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA/analysis/functions/confusion_matrix.py'
-# Load the confusion_matrix module
-spec = importlib.util.spec_from_file_location("confusion_matrix", confusion_matrix_path)
-cm_module = importlib.util.module_from_spec(spec)
-sys.modules["confusion_matrix"] = cm_module
-spec.loader.exec_module(cm_module)
+sys.path.append('/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/SCEMILA/analysis/functions')
+import confusion_matrix as cm_module  # Import the confusion matrix module
 
 base_path = "/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV"
 fold_paths = [
