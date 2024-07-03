@@ -3,6 +3,7 @@ import os
 import label_converter
 sys.path.append('/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/SCEMILA/analysis/functions')
 import confusion_matrix
+import sys
 
 
 base_path = "/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV"
