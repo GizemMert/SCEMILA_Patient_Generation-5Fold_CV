@@ -38,12 +38,12 @@ def get_classification_patient(patient_folder):
     sc_class= np.argmax(sc_probs, axis=1)
     return sc_class
 
-data_directory = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/Folds/fold_4/train/data'
+data_directory = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/Folds/fold_0/train/data'
 subtype = data_directory + "/NPM1"
 n_patients = 5
 experiment_name = "experiment_3"
-output_folder = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/artificialdata_fold_4/' + experiment_name + '/data'
-output_folder_csv = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/artificialdata_fold_4/' + experiment_name
+output_folder = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/artificialdata_fold_0/' + experiment_name + '/data'
+output_folder_csv = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/artificialdata_fold_0/' + experiment_name
 
 #Iterate over real dataset and store image paths in a dataframe df
 df = pd.DataFrame(columns=["patient","AML_subtype", "SC_Label", "image_path"])
@@ -72,7 +72,7 @@ sc_class_labels= ['eosinophil granulocyte', 'reactive lymphocyte',
        'normo', 'plasma cell', 'hair cell', 'bilobed M3v',
        'mononucleosis']
 #If single_cell_results does not exist yet run notebook create_single_cell_results
-df_sc_res=pd.read_csv("/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/Folds/fold_4/train/single_cell_results.csv",index_col=0).drop("patient", axis=1)
+df_sc_res=pd.read_csv("/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/Folds/fold_0/train/single_cell_results.csv",index_col=0).drop("patient", axis=1)
 df_meanstd = df_sc_res.groupby(["AML_subtype"]).agg(["mean","std"])
 
 #This cell creates artificial patients and stores the single cell couunts per patient in cell_type_counts_dict, also it counts the selected_images_per_patient as a sanity check
