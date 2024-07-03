@@ -8,8 +8,14 @@ pkl_file_path = "/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fol
 with open(pkl_file_path, 'rb') as file:
     file_paths = pickle.load(file)
 
-# Count the number of file paths
-total_file_paths = len(file_paths)
+# Count the number of patient names in each class
+for class_name, paths in file_paths.items():
+    num_patients = len(paths)
+    print(f"Class {class_name}: {num_patients} patient(s)")
+
+# Count the total number of patient names across all classes
+total_file_paths = sum(len(paths) for paths in file_paths.values())
+print(f"Total number of patient names: {total_file_paths}")
 
 print(f"Total number of file paths: {total_file_paths}")
 """
