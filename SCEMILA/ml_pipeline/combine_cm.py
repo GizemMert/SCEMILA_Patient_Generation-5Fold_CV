@@ -7,7 +7,6 @@ import confusion_matrix
 
 
 
-
 base_path = "/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV"
 fold_paths = [
     os.path.join(base_path, f"result_fold_{i}_mixed/mixed_seed42_max20/test_conf_matrix.npy")
@@ -25,9 +24,9 @@ for fold_path in fold_paths:
             sum_confusion_matrix += confusion_matrix
 
 # Define the reorder list for confusion matrix display
-reorder = ['PML_RARA', 'NPM1', 'CBFB_MYH11', 'RUNX1_RUNX1T1', 'control']
 
-# Define the function to save the confusion matrix
+
+reorder = ['PML_RARA', 'NPM1', 'CBFB_MYH11', 'RUNX1_RUNX1T1', 'control']
 def save_confusion_matrix(confusion_data, lbl_conv_obj, fig_export_path):
     # Save confusion matrix as npy file
     np.save(os.path.join(fig_export_path, 'confusion_matrix.npy'), confusion_data)
@@ -38,8 +37,7 @@ def save_confusion_matrix(confusion_data, lbl_conv_obj, fig_export_path):
         class_conversion=lbl_conv_obj.df,
         reorder=reorder,
         fig_size=(8.1, 4.5),
-        path_save=os.path.join(fig_export_path, 'confusion_matrix.svg')
-    )
+        path_save=os.path.join(fig_export_path, 'confusion_matrix.svg'))
 
 # Define the path to the label conversion file
 label_conv_obj = label_converter.LabelConverter(
