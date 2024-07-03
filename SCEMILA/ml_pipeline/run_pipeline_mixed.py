@@ -29,9 +29,9 @@ def get_class_sizes(folder,dictionary=None):
 # 1: Setup. Source Folder is parent folder for both mll_data_master and
 # the /data folder
 # results will be stored here
-TARGET_FOLDER = "/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/result_fold_2_mixed/mixed_seed42_max20"
+TARGET_FOLDER = "/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/result_fold_3_mixed/mixed_seed42_max20"
 # path to dataset
-SOURCE_FOLDER = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/mixed_uncertain_fold_2_seed42/max_20_percent'
+SOURCE_FOLDER = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/mixed_uncertain_fold_3_seed42/max_20_percent'
 
 
 # get arguments from parser, set up folder
@@ -138,7 +138,7 @@ print("")
 print('Initialize datasets...')
 with open(args.source_folder+'/file_paths.pkl', 'rb') as f:
     mixed_data_filepaths = pickle.load(f)
-label_conv_obj = label_converter.LabelConverter(path_preload="/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/result_fold_2/class_conversion.csv")
+label_conv_obj = label_converter.LabelConverter(path_preload="/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/result_fold_3/class_conversion.csv")
 set_dataset_path(args.source_folder)
 define_dataset(
     num_folds=4,
@@ -167,7 +167,7 @@ datasets['val'] = MllDataset(
     folds=folds['val'],
     aug_im_order=False,
     split='val')
-label_conv_obj = label_converter.LabelConverter(path_preload="/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/result_fold_2/class_conversion.csv")
+label_conv_obj = label_converter.LabelConverter(path_preload="/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/result_fold_3/class_conversion.csv")
 set_dataset_path("/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/Folds/fold_2/test")
 define_dataset(
     num_folds=1,
