@@ -15,7 +15,11 @@ import pandas as pd
 import numpy as np
 import pickle
 
-CLASSES = ['control', 'RUNX1_RUNX1T1', 'NPM1', 'CBFB_MYH11', 'PML_RARA']
+CLASSES = ['PML_RARA',
+        'NPM1',
+        'CBFB_MYH11',
+        'RUNX1_RUNX1T1',
+        'control']
 num_classes = 5
 seed = 42
 experiment_source = 'experiment_3'

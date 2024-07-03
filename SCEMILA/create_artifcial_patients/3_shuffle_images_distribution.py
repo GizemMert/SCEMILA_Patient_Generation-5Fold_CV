@@ -7,7 +7,11 @@ from collections import Counter
 import pandas as pd
 import pickle
 
-class_labels = ["CBFB_MYH11","control","NPM1","PML_RARA","RUNX1_RUNX1T1"]
+class_labels = ['PML_RARA',
+        'NPM1',
+        'CBFB_MYH11',
+        'RUNX1_RUNX1T1',
+        'control']
 n_classes = len(class_labels)
 
 #Function to get list of image_paths in one folder

@@ -11,8 +11,8 @@ import sys
 import os
 import time
 import argparse as ap
-
-torch.multiprocessing.set_sharing_strategy('file_system')
+sys.path.append('/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/SCEMILA/analysis/functions')
+import confusion_matrix
 
 # import from other, own modules
 # get the number of patients in each class counts
@@ -31,7 +31,7 @@ def get_class_sizes(folder,dictionary=None):
 # results will be stored here
 TARGET_FOLDER = "/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/result_fold_0_mixed/mixed_seed42_max20"
 # path to dataset
-SOURCE_FOLDER = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/mixed_uncertain_fold_0_seed42/max_50_percent'
+SOURCE_FOLDER = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/mixed_uncertain_fold_0_seed42/max_20_percent'
 
 
 # get arguments from parser, set up folder
@@ -243,6 +243,20 @@ print("")
 # 3: Model
 # initialize model, GPU link, training
 
+
+reorder = ['PML_RARA', 'NPM1', 'CBFB_MYH11', 'RUNX1_RUNX1T1', 'control']
+def save_confusion_matrix(confusion_data, lbl_conv_obj, fig_export_path):
+    # Save confusion matrix as npy file
+    np.save(os.path.join(fig_export_path, 'confusion_matrix.npy'), confusion_data)
+
+    # Plot and save confusion matrix as SVG
+    confusion_matrix.show_pred_mtrx(
+        pred_mtrx=confusion_data,
+        class_conversion=lbl_conv_obj.df,
+        reorder=reorder,
+        fig_size=(8.1, 4.5),
+        path_save=os.path.join(fig_export_path, 'confusion_matrix.svg'))
+
 # set up GPU link and model (check for multi GPU setup)
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 ngpu = torch.cuda.device_count()
@@ -283,6 +297,8 @@ train_obj = ModelTrainer(
     device=device)
 model, conf_matrix, data_obj = train_obj.launch_training()
 
+if 'test' in dataloaders:
+    save_confusion_matrix(conf_matrix, label_conv_obj, args.target_folder)
 
 # 4: aftermath
 # save confusion matrix from test set, all the data , model, print parameters
