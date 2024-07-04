@@ -2,7 +2,7 @@ import os
 
 import pickle
 
-pkl_file_path = "/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/mixed_uncertain_fold_1_seed42/max_30_percent/file_paths.pkl"
+pkl_file_path = "/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/mixed_uncertain_fold_1_seed42/max_20_percent/file_paths.pkl"
 
 # Load the pkl file
 with open(pkl_file_path, 'rb') as file:
