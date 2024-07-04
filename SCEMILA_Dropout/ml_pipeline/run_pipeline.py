@@ -25,8 +25,8 @@ torch.multiprocessing.set_sharing_strategy('file_system')
 # path to dataset
 #SOURCE_FOLDER = r'/mnt/c/Users/Hillary Hauger/Documents/Studium/WS23-24/Computational Methods for Single-cell Biology/smalldataset'
 #Random shuffe: Experiment 1
-TARGET_FOLDER = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/result_fold_4'
-SOURCE_FOLDER = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/Folds/fold_4/train'
+TARGET_FOLDER = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/result_fold_0'
+SOURCE_FOLDER = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/Folds/fold_0/train'
 
 # get arguments from parser, set up folder
 # parse arguments
@@ -47,7 +47,7 @@ parser.add_argument(
     '--ep',
     help='max. amount after which training should stop',
     required=False,
-    default=2)             # epochs to train
+    default=150)             # epochs to train
 parser.add_argument(
     '--es',
     help='early stopping if no decrease in loss for x epochs',
