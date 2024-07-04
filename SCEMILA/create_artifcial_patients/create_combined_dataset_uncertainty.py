@@ -23,10 +23,10 @@ CLASSES = ['PML_RARA',
 num_classes = 5
 seed = 42
 experiment_source = 'experiment_3'
-real_data_source = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/Folds/fold_2/train/data'
-SOURCE_FOLDER = f'/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/artificialdata_fold_2/'+experiment_source
-TARGET_FOLDER = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/result_fold_2'
-output_folder = f'/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/mixed_uncertain_fold_2_seed{seed}'
+real_data_source = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/Folds/fold_0/train/data'
+SOURCE_FOLDER = f'/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/artificialdata_fold_0/'+experiment_source
+TARGET_FOLDER = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/result_fold_0'
+output_folder = f'/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/mixed_uncertain_fold_0_seed{seed}'
 
 def get_patient_name(path):
     return re.search(r"/data/\w+/([0-9a-zA-Z_]*)", path).group(1)
@@ -217,7 +217,7 @@ def concatenate_metadata(original_metadata_path, uncertain_patients_folder):
                 print(output_file_path)
                 concatenated_metadata_df.to_csv(output_file_path, index=False)
 
-original_metadata_path = "/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/Folds/fold_2/train/metadata.csv"
+original_metadata_path = "/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/Folds/fold_0/train/metadata.csv"
 concatenate_metadata(original_metadata_path, output_folder)
 
 print("Finished")
