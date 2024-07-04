@@ -31,7 +31,7 @@ def get_class_sizes(folder,dictionary=None):
 # results will be stored here
 TARGET_FOLDER = "/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/result_fold_0_mixed/mixed_seed42_max20"
 # path to dataset
-SOURCE_FOLDER = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/mixed_uncertain_fold_0_seed42/max_20_percent'
+SOURCE_FOLDER = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/mixed_uncertain_fold_0_seed42/max_30_percent'
 
 
 # get arguments from parser, set up folder
