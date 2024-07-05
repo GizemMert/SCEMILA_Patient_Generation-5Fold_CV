@@ -184,8 +184,8 @@ print("")
 # initialize model, GPU link, training
 
 # set up GPU link and model (check for multi GPU setup)
-#device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-device="cpu"
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+# device="cpu"
 ngpu = torch.cuda.device_count()
 print("Found device: ", ngpu, "x ", device)
 
