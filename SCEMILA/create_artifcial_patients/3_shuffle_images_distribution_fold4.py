@@ -40,7 +40,7 @@ def get_classification_patient(patient_folder):
 
 data_directory = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/Folds/fold_4/train/data'
 subtype = data_directory + "/NPM1"
-n_patients =500
+n_patients =50
 experiment_name = "experiment_3"
 output_folder = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/artificialdata_fold_4/' + experiment_name + '/data'
 output_folder_csv = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/artificialdata_fold_4/' + experiment_name
