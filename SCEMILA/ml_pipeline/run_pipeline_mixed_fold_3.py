@@ -29,7 +29,7 @@ def get_class_sizes(folder,dictionary=None):
 # 1: Setup. Source Folder is parent folder for both mll_data_master and
 # the /data folder
 # results will be stored here
-TARGET_FOLDER = "/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/result_fold_3_mixed/mixed_seed42_max20"
+TARGET_FOLDER = "/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/result_fold_3_mixed/mixed_seed42_max10"
 # path to dataset
 SOURCE_FOLDER = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/mixed_uncertain_fold_3_seed42/max_10_percent'
 
