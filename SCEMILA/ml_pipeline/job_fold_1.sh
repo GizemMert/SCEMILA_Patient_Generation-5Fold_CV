@@ -16,4 +16,4 @@
 source /home/aih/gizem.mert/miniconda3/etc/profile.d/conda.sh
 conda activate my_new_env
 
-python run_pipeline_mixed_fold_1.py --result_folder=/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/result_fold_1_mixed/mixed_seed42_max50/result_folder --source_folder=/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/mixed_uncertain_fold_1_seed42/max_50_percent --target_folder=/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/result_fold_1_mixed/mixed_seed42_max50
+python run_pipeline_mixed_fold_1.py --result_folder=/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/result_fold_1_mixed/mixed_seed42_max10/result_folder --source_folder=/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/mixed_uncertain_fold_1_seed42/max_10_percent --target_folder=/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/result_fold_1_mixed/mixed_seed42_max10
