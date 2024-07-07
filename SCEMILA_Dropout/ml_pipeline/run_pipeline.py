@@ -25,8 +25,8 @@ torch.multiprocessing.set_sharing_strategy('file_system')
 # path to dataset
 #SOURCE_FOLDER = r'/mnt/c/Users/Hillary Hauger/Documents/Studium/WS23-24/Computational Methods for Single-cell Biology/smalldataset'
 #Random shuffe: Experiment 1
-TARGET_FOLDER = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/result_fold_2'
-SOURCE_FOLDER = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/Folds/fold_2/train'
+TARGET_FOLDER = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/result_fold_3'
+SOURCE_FOLDER = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/Folds/fold_3/train'
 
 # get arguments from parser, set up folder
 # parse arguments
