@@ -35,7 +35,7 @@ def save_confusion_matrix(confusion_data, lbl_conv_obj, fig_export_path):
         class_conversion=lbl_conv_obj.df,
         reorder=reorder,
         fig_size=(8.1, 4.5),
-        path_save=os.path.join(fig_export_path, 'confusion_matrix.svg')
+        path_save=os.path.join(fig_export_path, 'confusion_matrix_500.svg')
     )
 
 # Define the path to the label conversion file
