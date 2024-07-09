@@ -13,7 +13,18 @@ import time
 import argparse as ap
 sys.path.append('/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/SCEMILA/analysis/functions')
 import confusion_matrix
+import random
+import numpy as np
 
+random_seed = 42
+
+random.seed(random_seed)
+np.random.seed(random_seed)
+torch.manual_seed(random_seed)
+
+if torch.cuda.is_available():
+    torch.cuda.manual_seed(random_seed)
+    torch.cuda.manual_seed_all(random_seed)
 # import from other, own modules
 # get the number of patients in each class counts
 def get_class_sizes(folder,dictionary=None):
@@ -29,9 +40,9 @@ def get_class_sizes(folder,dictionary=None):
 # 1: Setup. Source Folder is parent folder for both mll_data_master and
 # the /data folder
 # results will be stored here
-TARGET_FOLDER = "/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/result_fold_4_mixed/mixed_seed42_max10"
+TARGET_FOLDER = "/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/result_fold_4_mixed/mixed_seed42_max20"
 # path to dataset
-SOURCE_FOLDER = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/mixed_uncertain_fold_4_seed42/max_10_percent'
+SOURCE_FOLDER = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/mixed_uncertain_fold_4_seed42/max_20_percent'
 
 
 # get arguments from parser, set up folder
