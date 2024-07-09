@@ -7,7 +7,7 @@ import confusion_matrix as cm_module  # Import the confusion matrix module
 
 base_path = "/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV"
 fold_paths = [
-    os.path.join(base_path, f"result_fold_{i}_mixed/mixed_seed42_max50/test_conf_matrix.npy")
+    os.path.join(base_path, f"result_fold_{i}_mixed/mixed_seed42_max20/test_conf_matrix.npy")
     for i in range(5)
 ]
 
