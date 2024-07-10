@@ -16,4 +16,4 @@
 source /home/aih/gizem.mert/miniconda3/etc/profile.d/conda.sh
 conda activate my_new_env
 
-python run_pipeline_fold_4.py --result_folder=/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/result_fold_4
+python run_pipeline_fold4.py --result_folder=/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/result_fold_4
