@@ -119,7 +119,7 @@ define_dataset(
 datasets = {}
 
 # set up folds for cross validation
-folds = {'train': np.array([0, 1, 2,3]), 'val': np.array([
+folds = {'train': np.array([0, 1, 2]), 'val': np.array([
     3])}
 '''{'train': np.array([0, 1, 2,3]), 'val': np.array([
     3]), 'test': np.array([4])}'''
