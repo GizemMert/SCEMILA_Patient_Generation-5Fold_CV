@@ -71,7 +71,7 @@ parser.add_argument(
     '--es',
     help='early stopping if no decrease in loss for x epochs',
     required=False,
-    default=10)          # epochs without improvement, after which training should stop.
+    default=90)          # epochs without improvement, after which training should stop.
 parser.add_argument(
     '--multi_att',
     help='use multi-attention approach',
