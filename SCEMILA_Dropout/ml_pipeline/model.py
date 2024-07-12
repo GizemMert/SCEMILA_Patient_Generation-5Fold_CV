@@ -67,7 +67,7 @@ class AMiL(nn.Module):
             self.classifier_multi_column.append(nn.Sequential(
                 nn.Linear(self.L, 64),
                 nn.ReLU(),
-                nn.Dropout(p=0.5),
+                nn.Dropout(p=0.3),
                 nn.Linear(64, 1)
             ))
 
