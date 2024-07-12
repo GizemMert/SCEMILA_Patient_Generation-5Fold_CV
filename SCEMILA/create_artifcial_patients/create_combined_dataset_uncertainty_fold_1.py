@@ -52,7 +52,7 @@ def update_misclassification_count(probability_vector, one_hot_target, current_m
     return current_misclassification_count
 
 # Number of Monte Carlo samples
-num_samples = 30
+num_samples = 100
 
 # Load class converter
 class_converter = {}
