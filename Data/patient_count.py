@@ -31,7 +31,7 @@ def count_subfolders(main_folder):
     return subfolders_count
 
 def main():
-    main_folder = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/Folds/fold_3/test'
+    main_folder = '/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/Folds/fold_3/test/control'
     subfolders_count = count_subfolders(main_folder)
 
     total_count = 0
