@@ -47,12 +47,12 @@ parser.add_argument(
     '--ep',
     help='max. amount after which training should stop',
     required=False,
-    default=70)             # epochs to train
+    default=150)               # epochs to train
 parser.add_argument(
     '--es',
     help='early stopping if no decrease in loss for x epochs',
     required=False,
-    default=10)          # epochs without improvement, after which training should stop.
+    default=20)          # epochs without improvement, after which training should stop.
 parser.add_argument(
     '--multi_att',
     help='use multi-attention approach',
@@ -119,7 +119,8 @@ define_dataset(
 datasets = {}
 
 # set up folds for cross validation
-folds = {'train': np.array([0, 1, 2, 3])}
+folds = {'train': np.array([0, 1, 2]), 'val': np.array([
+    3])}
 '''{'train': np.array([0, 1, 2,3]), 'val': np.array([
     3]), 'test': np.array([4])}'''
 for name, fold in folds.items():
@@ -131,11 +132,11 @@ datasets['train'] = MllDataset(
     split='train',
     patient_bootstrap_exclude=int(
         args.bootstrap_idx))
-'''datasets['val'] = MllDataset(
+datasets['val'] = MllDataset(
     folds=folds['val'],
     aug_im_order=False,
-    split='val')'''
-label_conv_obj = label_converter.LabelConverter()
+    split='val')
+# label_conv_obj = label_converter.LabelConverter()
 set_dataset_path("/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/Folds/fold_3/test")
 define_dataset(
     num_folds=1,
@@ -173,8 +174,8 @@ individual_sampling_prob = [
 
 idx_sampling_freq_train = torch.tensor(individual_sampling_prob)[
     datasets['train'].labels]
-'''idx_sampling_freq_val = torch.tensor(individual_sampling_prob)[
-    datasets['val'].labels]'''
+idx_sampling_freq_val = torch.tensor(individual_sampling_prob)[
+    datasets['val'].labels]
 
 sampler_train = WeightedRandomSampler(
     weights=idx_sampling_freq_train,
@@ -185,8 +186,8 @@ sampler_train = WeightedRandomSampler(
 dataloaders['train'] = DataLoader(
     datasets['train'],
     sampler=sampler_train)
-'''dataloaders['val'] = DataLoader(
-    datasets['val'])  # , sampler=sampler_val)'''
+dataloaders['val'] = DataLoader(
+    datasets['val'])  # , sampler=sampler_val)
 dataloaders['test'] = DataLoader(datasets['test'])
 print("")
 

@@ -136,7 +136,7 @@ datasets['val'] = MllDataset(
     folds=folds['val'],
     aug_im_order=False,
     split='val')
-'''label_conv_obj = label_converter.LabelConverter()
+# label_conv_obj = label_converter.LabelConverter()
 set_dataset_path("/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/Folds/fold_1/test")
 define_dataset(
     num_folds=1,
@@ -149,7 +149,7 @@ define_dataset(
 datasets['test'] = MllDataset(
     folds=0,
     aug_im_order=False,
-    split='test')'''
+    split='test')
 
 # store conversion from true string labels to artificial numbers for
 # one-hot encoding
@@ -188,7 +188,7 @@ dataloaders['train'] = DataLoader(
     sampler=sampler_train)
 dataloaders['val'] = DataLoader(
     datasets['val'])  # , sampler=sampler_val)
-'''dataloaders['test'] = DataLoader(datasets['test'])'''
+dataloaders['test'] = DataLoader(datasets['test'])
 print("")
 
 
@@ -236,7 +236,7 @@ train_obj = ModelTrainer(
     device=device)
 model, conf_matrix, data_obj = train_obj.launch_training()
 
-'''
+
 # 4: aftermath
 # save confusion matrix from test set, all the data , model, print parameters
 
@@ -248,7 +248,7 @@ pickle.dump(
             TARGET_FOLDER,
             'testing_data.pkl'),
         "wb"))
-'''
+
 if(int(args.save_model)):
     torch.save(model, os.path.join(TARGET_FOLDER, 'model.pt'))
     torch.save(model, os.path.join(TARGET_FOLDER, 'state_dictmodel.pt'))
