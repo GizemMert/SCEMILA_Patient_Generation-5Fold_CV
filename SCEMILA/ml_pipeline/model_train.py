@@ -71,8 +71,7 @@ class ModelTrainer:
 
         # load best performing model, and launch on test set
         self.model.load_state_dict(best_model)
-        loss, test_acc, conf_matrix, data_obj = self.dataset_to_model(ep, 'test')
-        self.test_accuracy = test_acc
+        loss, acc, conf_matrix, data_obj = self.dataset_to_model(ep, 'test')
         return self.model, conf_matrix, data_obj
 
     def dataset_to_model(self, epoch, split, backprop_every=20):
