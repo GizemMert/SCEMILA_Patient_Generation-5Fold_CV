@@ -70,9 +70,9 @@ class ModelTrainer:
                     self.scheduler.step()
 
         # load best performing model, and launch on test set
-        self.model.load_state_dict(best_model)
-        loss, acc, conf_matrix, data_obj = self.dataset_to_model(ep, 'test')
-        return self.model, conf_matrix, data_obj
+        # self.model.load_state_dict(best_model)
+        # loss, acc, conf_matrix, data_obj = self.dataset_to_model(ep, 'test')
+        # return self.model, conf_matrix, data_obj
 
     def dataset_to_model(self, epoch, split, backprop_every=20):
         '''launch iteration for 1 epoch on specific dataset object, with backprop being optional
