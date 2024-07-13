@@ -44,7 +44,7 @@ class ModelTrainer:
             # perform train/val iteration
             loss, acc, conf_matrix, data_obj = self.dataset_to_model(
                 ep, 'train')
-            loss, acc, conf_matrix, data_obj = self.dataset_to_model(ep, 'val')
+            # loss, acc, conf_matrix, data_obj = self.dataset_to_model(ep, 'val')
             no_improvement_for += 1
 
             loss = loss.cpu().numpy()
