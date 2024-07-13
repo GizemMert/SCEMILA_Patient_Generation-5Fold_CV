@@ -180,7 +180,7 @@ datasets['val'] = MllDataset(
     folds=folds['val'],
     aug_im_order=False,
     split='val')
-# label_conv_obj = label_converter.LabelConverter(path_preload="/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/result_fold_3/class_conversion.csv")
+label_conv_obj = label_converter.LabelConverter(path_preload="/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/result_fold_3/class_conversion.csv")
 set_dataset_path("/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/Folds/fold_3/test")
 define_dataset(
     num_folds=1,
