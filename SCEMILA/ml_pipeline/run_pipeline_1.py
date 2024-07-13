@@ -124,7 +124,7 @@ folds = {'train': np.array([0, 1, 2]), 'val': np.array([
 '''{'train': np.array([0, 1, 2,3]), 'val': np.array([
     3]), 'test': np.array([4])}'''
 for name, fold in folds.items():
-    folds[name] = ((fold + int(args.fold)) % 5).tolist()
+    folds[name] = ((fold + int(args.fold)) % 4).tolist()
 
 datasets['train'] = MllDataset(
     folds=folds['train'],
