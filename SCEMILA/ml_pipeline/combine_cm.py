@@ -37,11 +37,11 @@ def save_confusion_matrix(confusion_data, lbl_conv_obj, fig_export_path):
         fig_size=(8.1, 4.5),
         path_save=os.path.join(fig_export_path, 'confusion_matrix_150_30_02D_100M.svg')
     )
-label_conv_obj = label_converter.LabelConverter()
+# label_conv_obj = label_converter.LabelConverter()
 # Define the path to the label conversion file
-#label_conv_obj = label_converter.LabelConverter(
-#    path_preload=os.path.join(base_path, "result_fold_0/class_conversion.csv")
-#)
+label_conv_obj = label_converter.LabelConverter(
+    path_preload=os.path.join(base_path, "result_fold_0/class_conversion.csv")
+)
 
 # Define the path to save the final confusion matrix
 fig_export_path = "/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/combined_cm"
