@@ -29,7 +29,7 @@ df = pd.DataFrame({'path': data, 'label': labels})
 df['patient_id'] = df['path'].apply(lambda x: os.path.basename(x))
 
 # Stratified K-Fold
-skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+skf = StratifiedKFold(n_splits=5, shuffle=True)
 
 # Create output folders
 Path(output_path).mkdir(parents=True, exist_ok=True)
