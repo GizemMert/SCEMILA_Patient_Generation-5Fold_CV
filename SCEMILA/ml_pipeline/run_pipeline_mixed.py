@@ -154,7 +154,7 @@ print("")
 print('Initialize datasets...')
 with open(args.source_folder+'/file_paths.pkl', 'rb') as f:
     mixed_data_filepaths = pickle.load(f)
-label_conv_obj = label_converter.LabelConverter()
+label_conv_obj = label_converter.LabelConverter(path_preload="/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/result_fold_0/class_conversion.csv")
 set_dataset_path(args.source_folder)
 define_dataset(
     num_folds=4,
