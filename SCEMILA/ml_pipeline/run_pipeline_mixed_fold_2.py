@@ -66,12 +66,12 @@ parser.add_argument(
     '--ep',
     help='max. amount after which training should stop',
     required=False,
-    default=70)               # epochs to train
+    default=150)               # epochs to train
 parser.add_argument(
     '--es',
     help='early stopping if no decrease in loss for x epochs',
     required=False,
-    default=10)          # epochs without improvement, after which training should stop.
+    default=20)          # epochs without improvement, after which training should stop.
 parser.add_argument(
     '--multi_att',
     help='use multi-attention approach',
@@ -151,7 +151,8 @@ print("")
 print('Initialize datasets...')
 with open(args.source_folder+'/file_paths.pkl', 'rb') as f:
     mixed_data_filepaths = pickle.load(f)
-label_conv_obj = label_converter.LabelConverter(path_preload="/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/result_fold_0/class_conversion.csv")
+#label_conv_obj = label_converter.LabelConverter(path_preload="/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/result_fold_0/class_conversion.csv")
+label_conv_obj = label_converter.LabelConverter()
 set_dataset_path(args.source_folder)
 define_dataset(
     num_folds=4,
@@ -180,7 +181,7 @@ datasets['val'] = MllDataset(
     folds=folds['val'],
     aug_im_order=False,
     split='val')
-label_conv_obj = label_converter.LabelConverter(path_preload="/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/result_fold_0/class_conversion.csv")
+# label_conv_obj = label_converter.LabelConverter(path_preload="/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/result_fold_0/class_conversion.csv")
 set_dataset_path("/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/Data/Folds/fold_2/test")
 define_dataset(
     num_folds=1,
