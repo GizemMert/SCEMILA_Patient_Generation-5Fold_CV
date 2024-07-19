@@ -39,7 +39,7 @@ def save_confusion_matrix(confusion_data, lbl_conv_obj, fig_export_path):
     )
 # label_conv_obj = label_converter.LabelConverter()
 # Define the path to the label conversion file
-label_conv_obj = label_converter.LabelConverter()
+label_conv_obj = label_converter.LabelConverter(path_preload="/home/aih/gizem.mert/SCEMILA_5K/SCEMILA_Patient_Generation-5Fold_CV/result_fold_0_mixed/mixed_seed42_max10/class_conversion.csv")
 
 
 # Define the path to save the final confusion matrix
